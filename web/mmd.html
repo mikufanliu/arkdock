@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        * { margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+        canvas { width: 100%; height: 100%; display: block; }
+    </style>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "./lib/three.module.js",
+            "three/examples/jsm/loaders/MMDLoader.js": "./lib/MMDLoader.js",
+            "three/examples/jsm/animation/MMDAnimationHelper.js": "./lib/MMDAnimationHelper.js",
+            "three/examples/jsm/animation/MMDPhysics.js": "./lib/MMDPhysics.js",
+            "three/examples/jsm/animation/CCDIKSolver.js": "./lib/CCDIKSolver.js",
+            "three/examples/jsm/libs/mmdparser.module.js": "./lib/mmdparser.module.js",
+            "three/examples/jsm/shaders/MMDToonShader.js": "./lib/MMDToonShader.js",
+            "three/examples/jsm/loaders/TGALoader.js": "./lib/TGALoader.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <canvas id="mmd-canvas"></canvas>
+    <script type="module" src="mmd.js"></script>
+</body>
+</html>

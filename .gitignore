@@ -1,0 +1,15 @@
+# Build
+.build/
+DerivedData/
+*.xcodeproj/xcuserdata/
+
+# macOS
+.DS_Store
+*.swp
+
+# Model files (large binary, users download themselves)
+web/model/*/
+!web/model/.gitkeep
+
+# Logs
+*.log
