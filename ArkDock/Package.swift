@@ -2,11 +2,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "AsukaPet",
+    name: "ArkDock",
     platforms: [.macOS("15.0")],
     targets: [
         .executableTarget(
-            name: "AsukaPet",
+            name: "ArkDock",
             path: "Sources",
             resources: [
                 .copy("web"),

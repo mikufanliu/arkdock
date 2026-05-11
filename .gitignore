@@ -11,5 +11,14 @@ DerivedData/
 web/model/*/
 !web/model/.gitkeep
 
+# Python
+__pycache__/
+
+# Environment
+.env
+
+# Dev artifacts
+web/_test_anims.html
+
 # Logs
 *.log

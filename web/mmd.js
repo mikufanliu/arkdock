@@ -84,13 +84,16 @@ async function loadMMDModel(modelPath) {
             mesh = object;
             mesh.position.set(0, 0, 0);
             scene.add(mesh);
-            helper.add(mesh, { animation: null, physics: true });
+            helper.add(mesh, { animation: null, physics: false });
 
-            // 自动调整相机
+            // 自动调整相机：确保全身可见
             const box = new THREE.Box3().setFromObject(mesh);
             const height = box.max.y - box.min.y;
-            camera.position.set(0, height * 0.55, height * 1.5);
-            camera.lookAt(0, height * 0.45, 0);
+            const centerY = (box.max.y + box.min.y) / 2;
+            const fov = camera.fov * (Math.PI / 180);
+            const dist = (height / 2) / Math.tan(fov / 2) * 1.1;
+            camera.position.set(0, centerY, dist);
+            camera.lookAt(0, centerY, 0);
 
             console.log("MMD模型加载完成:", modelPath);
             notifySwift("ready", { expressions: [], motionGroups: {} });
@@ -109,7 +112,7 @@ function loadAndPlayVMD(vmdPath) {
     const loader = new MMDLoader();
     loader.loadAnimation(vmdPath, mesh, (clip) => {
         helper.remove(mesh);
-        helper.add(mesh, { animation: clip, physics: true });
+        helper.add(mesh, { animation: clip, physics: false });
         console.log("VMD动作播放:", vmdPath);
     });
 }

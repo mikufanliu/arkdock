@@ -135,8 +135,9 @@ final class LocalHTTPServer: @unchecked Sendable {
         case "gif": return "image/gif"
         case "moc3": return "application/octet-stream"
         case "css": return "text/css"
-        case "pmd", "pmx", "vmd", "vpd", "bmp", "tga", "spa", "sph":
+        case "pmd", "pmx", "vmd", "vpd", "bmp", "tga", "spa", "sph", "skel":
             return "application/octet-stream"
+        case "atlas": return "text/plain"
         case "glb": return "model/gltf-binary"
         case "gltf": return "model/gltf+json"
         default: return "application/octet-stream"

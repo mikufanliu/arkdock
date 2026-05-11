@@ -1,12 +1,12 @@
 import SwiftUI
 
 @main
-struct AsukaPetApp: App {
+struct ArkDockApp: App {
     @StateObject private var petState = PetState.shared
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        MenuBarExtra("Asuka", systemImage: "sparkle") {
+        MenuBarExtra("ArkDock", systemImage: "sparkle") {
             Toggle("显示桌宠", isOn: $petState.isVisible)
                 .keyboardShortcut("p", modifiers: [.command, .shift])
                 .onChange(of: petState.isVisible) { _, visible in
@@ -22,12 +22,49 @@ struct AsukaPetApp: App {
                 }
             Divider()
             Menu("切换模型") {
-                ForEach(petState.availableModels) { model in
-                    Button(action: { petState.switchModel(model.id) }) {
-                        HStack {
-                            Text(model.name)
-                            if model.id == petState.currentModel {
-                                Image(systemName: "checkmark")
+                ForEach(petState.characters) { char in
+                    if char.isSingleMode {
+                        Button(action: {
+                            let modelId = char.skins[0].modes[0].path == "." ? char.id : "\(char.id)/\(char.skins[0].modes[0].path)"
+                            petState.switchModel(modelId)
+                        }) {
+                            HStack {
+                                Text(char.name)
+                                if petState.currentModel.hasPrefix(char.id) {
+                                    Image(systemName: "checkmark")
+                                }
+                            }
+                        }
+                    } else if char.skins.count == 1 {
+                        Menu(char.name) {
+                            ForEach(Array(char.skins[0].modes.enumerated()), id: \.offset) { _, mode in
+                                let modelId = "\(char.id)/\(mode.path)"
+                                Button(action: { petState.switchModel(modelId) }) {
+                                    HStack {
+                                        Text(mode.name)
+                                        if petState.currentModel == modelId {
+                                            Image(systemName: "checkmark")
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Menu(char.name) {
+                            ForEach(Array(char.skins.enumerated()), id: \.offset) { _, skin in
+                                Menu(skin.name) {
+                                    ForEach(Array(skin.modes.enumerated()), id: \.offset) { _, mode in
+                                        let modelId = "\(char.id)/\(mode.path)"
+                                        Button(action: { petState.switchModel(modelId) }) {
+                                            HStack {
+                                                Text(mode.name)
+                                                if petState.currentModel == modelId {
+                                                    Image(systemName: "checkmark")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

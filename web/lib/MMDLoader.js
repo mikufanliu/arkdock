@@ -1356,6 +1356,7 @@ class MaterialBuilder {
 
 	_loadTexture( filePath, textures, params, onProgress, onError ) {
 
+		filePath = filePath.replace( /\\/g, '/' );
 		params = params || {};
 
 		const scope = this;

@@ -1,6 +1,6 @@
 import Foundation
 
-/// WebSocket 客户端，连接本地 asuka 后端
+/// WebSocket 客户端，连接本地外部后端
 final class WebSocketClient: NSObject, URLSessionWebSocketDelegate, @unchecked Sendable {
     private let url: URL
     private var webSocketTask: URLSessionWebSocketTask?
