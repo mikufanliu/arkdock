@@ -1,27 +1,36 @@
-# Asuka Desktop Pet - TODO
+# ArkDock - TODO
 
 ## Pending
 
-- [ ] 接入 MMD 模型：用 Three.js + MMDLoader 替代 Live2D，可用免费初音 MMD 模型（TDA 式等），改动在 web 层，Swift 端基本不用动
+- [ ] 代码签名 — 无签名 app 被 Gatekeeper 拦截，用户需右键打开
+- [ ] 应用图标 — 当前无 .icns，需要设计一个 ArkDock logo
+- [ ] 系统托盘快捷操作 — 右键菜单加入更多功能（切皮肤、技能快捷键）
+- [ ] 多角色同屏 — 支持同时显示多个桌宠窗口
+- [ ] 系统感知 — 检测用户活动状态，长时间不操作触发特殊对话
+- [ ] 角色好感度持久化 — 当前 affection 不保存，重启归零
 
-## Resources
+## Ideas
 
-### 免费 Live2D 模型下载站
-
-- **Booth.pm** — https://booth.pm/ja/search/Live2D%20モデル%20無料 — 日本同人创作平台，搜"Live2D 無料"
-- **nizima.com** — https://nizima.com — Live2D 官方模型市场，可筛选免费
-- **Live2D 官方示例** — https://www.live2d.com/en/learn/sample/ — Haru、Hiyori 等官方模型
-- **GitHub** — 搜 "live2d model" 或 "model3.json"
-
-### 免费 MMD 模型下载站
-
-- **Bowlroll** — https://bowlroll.net — 搜索"TDA初音"等，日本 MMD 资源主站
-- **DeviantArt** — https://www.deviantart.com — 搜 "MMD model download"
-- **ニコニ立体** — https://3d.nicovideo.jp — Niconico 旗下 3D 模型分享平台
+- [ ] 基建动画自动切换 — 长时间闲置自动切到基建模式
+- [ ] 通知集成 — 角色播报系统通知（日历、消息等）
+- [ ] 语音合成 — 用 TTS 读出 AI 回复而非静态音频
+- [ ] 插件系统 — 允许社区贡献自定义交互脚本
 
 ## Done
 
-- [x] Phase 1: asuka 后端 local_server.py (WebSocket)
-- [x] Phase 2: Live2D web 渲染层 (pixi-live2d-display + Cubism4)
-- [x] Phase 3: SwiftUI 桌面应用 (NSPanel + WKWebView + 聊天 UI)
-- [x] Phase 4: 端到端联调 (本地 HTTP server 解决 WASM 加载)
+- [x] Spine 骨骼动画渲染（pixi-spine）
+- [x] 多皮肤/多模式切换（正面/背面/基建）
+- [x] 角色导入脚本（add_character.py）— 自动从 PRTS Wiki 下载模型/语音/技能/档案
+- [x] AI 人格系统 — LLM 总结档案生成 system prompt，per-character persona.json
+- [x] 多 LLM Provider — OpenAI 兼容 API（Anthropic/DeepSeek/Azure）
+- [x] ScriptedChatEngine — 无 API 时用台词库回复
+- [x] 语音台词播放 — 中文/日文/方言多语种支持
+- [x] 技能栏 — 图标 + 释放动画 + 台词联动
+- [x] 闲置聊天 — 定时从台词池随机发言
+- [x] 聊天历史持久化 — per-character 独立存储
+- [x] GitHub Actions CI — 打 tag 自动构建 DMG 发 Release
+- [x] 项目改名 AsukaPet → ArkDock，开源准备（LICENSE/README/清理）
+- [x] Live2D 渲染（pixi-live2d-display + Cubism4）
+- [x] MMD 模型支持（Three.js + MMDLoader）
+- [x] SwiftUI 桌面应用（NSPanel + WKWebView）
+- [x] 本地 HTTP Server（NWListener，解决 WASM/资源加载）
