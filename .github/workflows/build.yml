@@ -18,17 +18,30 @@ jobs:
       - name: Build
         run: cd ArkDock && swift build -c release
 
-      - name: Package
+      - name: Create .app bundle
         run: |
-          mkdir -p dist
-          cp ArkDock/.build/release/ArkDock dist/
-          cd dist && zip ArkDock-macOS.zip ArkDock
+          APP="dist/ArkDock.app/Contents"
+          mkdir -p "$APP/MacOS" "$APP/Resources"
+          cp ArkDock/.build/release/ArkDock "$APP/MacOS/"
+          cp ArkDock/Info.plist "$APP/"
+          # Copy bundled resources if they exist
+          BUNDLE_DIR="ArkDock/.build/release/ArkDock_ArkDock.bundle"
+          if [ -d "$BUNDLE_DIR" ]; then
+            cp -R "$BUNDLE_DIR" "$APP/Resources/"
+          fi
+
+      - name: Create DMG
+        run: |
+          mkdir -p dmg_contents
+          cp -R dist/ArkDock.app dmg_contents/
+          ln -s /Applications dmg_contents/Applications
+          hdiutil create -volname "ArkDock" -srcfolder dmg_contents -ov -format UDZO ArkDock.dmg
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ArkDock-macOS
-          path: dist/ArkDock-macOS.zip
+          path: ArkDock.dmg
 
   release:
     needs: build
@@ -43,5 +56,5 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ArkDock-macOS.zip
+          files: ArkDock.dmg
           generate_release_notes: true
