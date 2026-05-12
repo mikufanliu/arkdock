@@ -1,11 +1,8 @@
-name: Build
+name: Release
 
 on:
   push:
-    branches: [main]
     tags: ['v*']
-  pull_request:
-    branches: [main]
 
 jobs:
   build:
@@ -13,19 +10,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Resolve web symlink
+        run: |
+          rm -f ArkDock/Sources/web
+          cp -R web ArkDock/Sources/web
+
       - name: Build
         run: cd ArkDock && swift build -c release
 
-      - name: Package app
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Package
         run: |
-          APP_PATH="ArkDock/.build/release/ArkDock"
           mkdir -p dist
-          cp "$APP_PATH" dist/
+          cp ArkDock/.build/release/ArkDock dist/
           cd dist && zip ArkDock-macOS.zip ArkDock
 
       - name: Upload artifact
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/upload-artifact@v4
         with:
           name: ArkDock-macOS
@@ -34,7 +33,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       contents: write
     steps:
