@@ -10,7 +10,7 @@
 - **Live2D 模型** — 支持 Cubism4 模型（表情 + 动作）
 - **MMD 模型** — 支持 PMX/PMD 模型 + VMD 动作
 - **多皮肤/多模式** — 支持角色的所有皮肤和正面/背面/基建视图
-- **AI 对话** — 每个角色有独立人格，支持 OpenAI 兼容 API
+- **AI 对话** — 每个角色有独立人格，支持 OpenAI / DeepSeek / Kimi / Anthropic
 - **多语言语音** — 中文/日文/方言语音播放
 - **技能展示** — 技能图标 + 释放动画 + 台词联动
 - **闲置聊天** — 角色会自己说话（语音台词随机触发）
@@ -18,8 +18,16 @@
 
 ## 系统要求
 
-- macOS 12.0+ 或 Windows 10+
+- macOS 12.0+ (Apple Silicon / Intel) 或 Windows 10+
 - Rust (开发时需要)
+
+## 安装
+
+从 [Releases](https://github.com/mikufanliu/arkdock/releases) 下载对应平台的安装包。
+
+**macOS**: 打开 DMG，将 ArkDock.app 拖入 Applications。首次打开如提示"已损坏"，双击 DMG 中的「修复安全提示.command」脚本即可。
+
+**Windows**: 运行 `.exe` 安装程序。
 
 ## 构建 & 运行
 
@@ -78,11 +86,11 @@ python3 calibrate_models.py
 
 ## AI 对话配置
 
-在 app 右键菜单「AI 设置」中配置 LLM：
+在侧边面板「设置」tab 中配置 LLM：
 
-- **Endpoint**: OpenAI 兼容的 API 地址
+- **Provider**: OpenAI / DeepSeek / Kimi / Anthropic / 自定义
 - **API Key**: 你的 API 密钥
-- **Model**: 模型名称（如 `gpt-4o`、`claude-sonnet-4-6`）
+- **Model**: 模型名称（选择 Provider 后自动填充默认值）
 
 未配置时，角色使用脚本模式（随机语音台词回复）。
 
@@ -92,7 +100,7 @@ python3 calibrate_models.py
 arkdock/
 ├── src-tauri/            # Rust 后端 (Tauri 2)
 │   └── src/
-│       ├── lib.rs        # 入口 + 插件注册
+│       ├── main.rs       # 入口 + 插件注册
 │       ├── commands.rs   # Tauri 命令 (音频/文件/菜单)
 │       └── tray.rs       # 系统托盘
 ├── src/                  # 前端 UI
