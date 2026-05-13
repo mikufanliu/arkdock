@@ -319,8 +319,11 @@ function renderSettingsTab(container) {
         <select id="char-select"></select>
         <label>Provider</label>
         <select id="llm-provider">
-            <option value="openai" ${config.provider === 'openai' ? 'selected' : ''}>OpenAI Compatible</option>
+            <option value="openai" ${config.provider === 'openai' ? 'selected' : ''}>OpenAI</option>
+            <option value="deepseek" ${config.provider === 'deepseek' ? 'selected' : ''}>DeepSeek</option>
+            <option value="kimi" ${config.provider === 'kimi' ? 'selected' : ''}>Kimi (Moonshot)</option>
             <option value="anthropic" ${config.provider === 'anthropic' ? 'selected' : ''}>Anthropic</option>
+            <option value="custom" ${config.provider === 'custom' ? 'selected' : ''}>自定义</option>
         </select>
         <label>Endpoint</label>
         <input type="text" id="llm-endpoint" value="${config.endpoint || ''}" placeholder="https://api.openai.com">
@@ -357,6 +360,20 @@ function renderSettingsTab(container) {
             state.userScale = scale;
             saveCharPrefs();
             window.setUserScale(scale);
+        });
+        document.getElementById("llm-provider").addEventListener("change", (e) => {
+            const presets = {
+                openai: { endpoint: "https://api.openai.com", model: "gpt-4o-mini" },
+                deepseek: { endpoint: "https://api.deepseek.com", model: "deepseek-chat" },
+                kimi: { endpoint: "https://api.moonshot.cn", model: "moonshot-v1-8k" },
+                anthropic: { endpoint: "https://api.anthropic.com", model: "claude-sonnet-4-20250514" },
+                custom: { endpoint: "", model: "" },
+            };
+            const preset = presets[e.target.value];
+            if (preset) {
+                document.getElementById("llm-endpoint").value = preset.endpoint;
+                document.getElementById("llm-model").value = preset.model;
+            }
         });
         document.getElementById("save-settings").addEventListener("click", async () => {
             await saveConfig({
