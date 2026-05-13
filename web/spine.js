@@ -46,9 +46,9 @@ async function initSpine() {
         notifySwift("contextmenu", { x: e.clientX, y: e.clientY });
     });
 
-    canvas.addEventListener("mousemove", (e) => {
+    document.addEventListener("mousemove", (e) => {
         if (spineObj && !isDragging) {
-            const centerX = app.screen.width / 2;
+            const centerX = window.innerWidth / 2;
             const shouldFaceLeft = e.clientX < centerX;
             const currentScale = Math.abs(spineObj.scale.x);
             spineObj.scale.x = shouldFaceLeft ? -currentScale : currentScale;
@@ -116,20 +116,8 @@ window.switchSpineModel = async function(modelId) {
     const modePath = modelId.split("/").slice(1).join("/");
 
     try {
-        // 读取 manifest 获取 displayScale
-        try {
-            const manifestResp = await fetch(MODEL_BASE + charId + "/manifest.json");
-            if (manifestResp.ok) {
-                const manifest = await manifestResp.json();
-                let base = manifest.displayScale || 1.0;
-                let modeMultiplier = (manifest.modeScales && manifest.modeScales[modePath]) || 1.0;
-                displayScale = base * modeMultiplier;
-            } else {
-                displayScale = 1.0;
-            }
-        } catch (e) {
-            displayScale = 1.0;
-        }
+        // userScale will be set by state.js before/after model load
+        displayScale = 1.0;
 
         let skelName = null;
 

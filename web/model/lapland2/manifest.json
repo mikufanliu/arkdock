@@ -37,11 +37,7 @@
       ]
     }
   ],
-  "displayScale": 0.78,
-  "modeScales": {
-    "default_build": 0.94,
-    "sale_15_front": 1.1,
-    "sale_15_build": 1.63,
-    "sale_15_back": 1.1
+  "defaultScales": {
+    "default_front": 1
   }
 }

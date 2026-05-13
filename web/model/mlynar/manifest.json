@@ -54,13 +54,15 @@
       ]
     }
   ],
-  "displayScale": 0.84,
-  "modeScales": {
-    "iteration_3_front": 0.82,
-    "iteration_3_build": 0.27,
-    "iteration_3_back": 0.82,
-    "epoque_28_front": 1.06,
-    "epoque_28_build": 0.63,
-    "epoque_28_back": 1.05
+  "defaultScales": {
+    "default_front": 0.75,
+    "default_build": 0.75,
+    "default_back": 0.75,
+    "iteration_3_front": 0.75,
+    "iteration_3_build": 0.75,
+    "iteration_3_back": 0.75,
+    "epoque_28_front": 0.75,
+    "epoque_28_build": 0.75,
+    "epoque_28_back": 0.75
   }
 }

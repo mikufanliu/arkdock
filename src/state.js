@@ -15,6 +15,7 @@ const state = {
     currentModeIndex: 0,
     voiceLang: "cn",
     userScale: 1.0,
+    modeScales: {},
 };
 
 async function initState() {
@@ -36,14 +37,13 @@ async function switchCharacter(charId) {
     state.currentChar = charId;
     state.chatHistory = await invoke("load_chat_history", { charId });
 
-    // Load per-character preferences (scale, voiceLang)
+    // Load per-character preferences (modeScales, voiceLang)
     const prefs = await invoke("load_char_prefs", { charId });
     if (prefs) {
-        if (prefs.scale != null) state.userScale = prefs.scale;
-        else state.userScale = 1.0;
+        state.modeScales = prefs.modeScales || {};
         if (prefs.voiceLang) state.voiceLang = prefs.voiceLang;
     } else {
-        state.userScale = 1.0;
+        state.modeScales = {};
     }
 
     const personaJson = await invoke("read_json_file", { charId, filename: "persona.json" });
@@ -102,23 +102,17 @@ async function switchCharacter(charId) {
         defaultMode = manifestObj.defaultMode;
     }
 
+    // Set scale BEFORE loading model so fitSpine uses correct value immediately
+    const modePath = defaultMode;
+    state.userScale = getScaleForMode(modePath);
+    if (window.setUserScale) window.setUserScale(state.userScale);
+
     if (manifestObj.type === "spine") {
         window.switchSpineModel(charId + "/" + defaultMode);
     } else if (manifestObj.type === "live2d") {
         window.switchLive2DModel(charId + "/" + defaultMode);
     } else if (manifestObj.type === "mmd") {
         window.switchMMDModel(charId + "/" + defaultMode);
-    }
-
-    // Apply saved user scale after a short delay (model needs to load first)
-    if (state.userScale !== 1.0) {
-        setTimeout(() => {
-            if (manifestObj.type === "mmd") {
-                if (window.mmdSetScale) window.mmdSetScale(state.userScale);
-            } else {
-                if (window.setUserScale) window.setUserScale(state.userScale);
-            }
-        }, 300);
     }
 
     saveGlobalPrefs();
@@ -137,7 +131,21 @@ function switchToMode(skinIndex, modeIndex) {
 
     if (manifest.type === "spine") {
         window.switchSpineModel(state.currentChar + "/" + mode.path);
+    } else if (manifest.type === "live2d") {
+        window.switchLive2DModel(state.currentChar + "/" + mode.path);
+    } else if (manifest.type === "mmd") {
+        window.switchMMDModel(state.currentChar + "/" + mode.path);
     }
+
+    // Apply this mode's scale
+    state.userScale = getScaleForMode(mode.path);
+    setTimeout(() => {
+        if (manifest.type === "mmd") {
+            if (window.mmdSetScale) window.mmdSetScale(state.userScale);
+        } else {
+            if (window.setUserScale) window.setUserScale(state.userScale);
+        }
+    }, 300);
 }
 
 async function saveConfig(config) {
@@ -145,11 +153,31 @@ async function saveConfig(config) {
     await invoke("save_config", { config });
 }
 
+function getCurrentModePath() {
+    const manifest = state.manifest;
+    if (!manifest || !manifest.skins) return "default_front";
+    const skin = manifest.skins[state.currentSkinIndex];
+    if (!skin || !skin.modes) return "default_front";
+    const mode = skin.modes[state.currentModeIndex];
+    return mode ? mode.path : "default_front";
+}
+
+function getScaleForMode(modePath) {
+    if (state.modeScales[modePath] != null) return state.modeScales[modePath];
+    const manifest = state.manifest;
+    if (manifest && manifest.defaultScales && manifest.defaultScales[modePath] != null) {
+        return manifest.defaultScales[modePath];
+    }
+    return 1.0;
+}
+
 async function saveCharPrefs() {
     if (!state.currentChar) return;
+    const modePath = getCurrentModePath();
+    state.modeScales[modePath] = state.userScale;
     await invoke("save_char_prefs", {
         charId: state.currentChar,
-        prefs: { scale: state.userScale, voiceLang: state.voiceLang },
+        prefs: { modeScales: state.modeScales, voiceLang: state.voiceLang },
     });
 }
 

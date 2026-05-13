@@ -54,15 +54,8 @@
       ]
     }
   ],
-  "displayScale": 0.91,
-  "modeScales": {
-    "default_build": 1.36,
-    "default_back": 0.91,
-    "game_9_front": 1.98,
-    "game_9_build": 1.74,
-    "game_9_back": 1.98,
-    "sale_14_front": 0.37,
-    "sale_14_build": 0.29,
-    "sale_14_back": 0.37
+  "defaultScales": {
+    "game_9_front": 0.3,
+    "sale_14_front": 4.6
   }
 }

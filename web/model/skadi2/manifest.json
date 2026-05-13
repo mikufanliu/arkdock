@@ -1,7 +1,6 @@
 {
   "name": "浊心斯卡蒂",
   "type": "spine",
-  "displayScale": 1.17,
   "skins": [
     {
       "name": "默认",
@@ -43,10 +42,12 @@
       ]
     }
   ],
-  "modeScales": {
-    "boc_4_front": 0.83,
-    "boc_4_build": 0.9,
-    "iteration_2_front": 0.73,
-    "iteration_2_build": 1.08
+  "defaultScales": {
+    "default_front": 0.5,
+    "default_build": 0.5,
+    "boc_4_front": 0.5,
+    "boc_4_build": 0.5,
+    "iteration_2_front": 0.5,
+    "iteration_2_build": 0.5
   }
 }

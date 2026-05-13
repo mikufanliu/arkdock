@@ -37,11 +37,7 @@
       ]
     }
   ],
-  "displayScale": 0.98,
-  "modeScales": {
-    "default_build": 1.25,
-    "boc_11_front": 0.88,
-    "boc_11_build": 0.91,
-    "boc_11_back": 0.88
+  "defaultScales": {
+    "default_front": 0.75
   }
 }

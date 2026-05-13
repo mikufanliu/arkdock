@@ -20,5 +20,9 @@
       ]
     }
   ],
-  "displayScale": 0.93
+  "defaultScales": {
+    "default_front": 1,
+    "default_build": 1,
+    "default_back": 1
+  }
 }

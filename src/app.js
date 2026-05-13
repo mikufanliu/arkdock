@@ -332,7 +332,7 @@ function renderSettingsTab(container) {
         <label>Model</label>
         <input type="text" id="llm-model" value="${config.model || ''}" placeholder="gpt-4o-mini">
         <label>缩放</label>
-        <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.1" value="${state.userScale || 1.0}">
+        <input type="range" id="scale-slider" min="0.1" max="5.0" step="0.05" value="${state.userScale || 1.0}">
         <button class="btn-save" id="save-settings">保存</button>
     `;
     container.appendChild(form);
@@ -359,7 +359,11 @@ function renderSettingsTab(container) {
             const scale = parseFloat(e.target.value);
             state.userScale = scale;
             saveCharPrefs();
-            window.setUserScale(scale);
+            if (state.manifest && state.manifest.type === "mmd") {
+                if (window.mmdSetScale) window.mmdSetScale(scale);
+            } else {
+                window.setUserScale(scale);
+            }
         });
         document.getElementById("llm-provider").addEventListener("change", (e) => {
             const presets = {
@@ -415,7 +419,6 @@ document.getElementById("send-btn").addEventListener("click", async () => {
     if (!text) return;
     input.value = "";
     hideInput();
-    showBubble("…", 30000);
     const reply = await sendMessage(text);
     if (reply) showBubble(reply, 6000);
 });
@@ -436,11 +439,51 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     });
 });
 
+// === 点击交互 ===
+
+function handleTap() {
+    console.log("handleTap triggered, mode:", getCurrentModePath());
+    const manifest = state.manifest;
+    const skin = manifest && manifest.skins && manifest.skins[state.currentSkinIndex];
+    const mode = skin && skin.modes && skin.modes[state.currentModeIndex];
+    const modePath = mode ? mode.path : "";
+
+    if (modePath.includes("build") || modePath.includes("back")) {
+        if (window.playMotion) window.playMotion("Interact", 0);
+        const touchLine = findVoiceLine("trust_touch") || findVoiceLine("poke");
+        if (touchLine) {
+            if (touchLine.content) showBubble(touchLine.content, 4000);
+            if (touchLine.audioFile && state.currentChar) {
+                invoke("play_audio", { charId: state.currentChar, file: touchLine.audioFile, lang: state.voiceLang });
+            }
+        } else {
+            showBubble("(无触摸语音)", 2000);
+        }
+    } else {
+        const selectLines = [findVoiceLine("选中干员1"), findVoiceLine("选中干员2")].filter(Boolean);
+        if (selectLines.length > 0) {
+            const line = selectLines[Math.floor(Math.random() * selectLines.length)];
+            if (line.content) showBubble(line.content, 3000);
+            if (line.audioFile && state.currentChar) {
+                invoke("play_audio", { charId: state.currentChar, file: line.audioFile, lang: state.voiceLang });
+            }
+        } else {
+            showBubble("(无选中语音)", 2000);
+        }
+    }
+}
+
+function findVoiceLine(key) {
+    const lines = state.voiceLines;
+    if (!lines || !Array.isArray(lines)) return null;
+    return lines.find(l => l.key === key || l.title === key) || null;
+}
+
 // === Spine event bridge ===
 
 window.notifySwift = function(type, data) {
     if (type === "tap") {
-        toggleInput();
+        handleTap();
     } else if (type === "drag") {
         appWindow.startDragging();
     } else if (type === "contextmenu") {
@@ -534,6 +577,15 @@ async function initApp() {
                         state.currentSkinIndex = si;
                         state.currentModeIndex = mi;
                         renderSkillBar();
+                        // Apply per-mode scale
+                        state.userScale = getScaleForMode(modePath);
+                        setTimeout(() => {
+                            if (state.manifest && state.manifest.type === "mmd") {
+                                if (window.mmdSetScale) window.mmdSetScale(state.userScale);
+                            } else {
+                                if (window.setUserScale) window.setUserScale(state.userScale);
+                            }
+                        }, 300);
                         break;
                     }
                 }

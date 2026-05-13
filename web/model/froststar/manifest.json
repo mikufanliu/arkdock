@@ -1,7 +1,6 @@
 {
   "name": "霜星",
   "type": "spine",
-  "displayScale": 1.14,
   "skins": [
     {
       "name": "默认",
@@ -12,5 +11,8 @@
         }
       ]
     }
-  ]
+  ],
+  "defaultScales": {
+    "front": 0.75
+  }
 }
