@@ -1,0 +1,24 @@
+{
+  "name": "凯尔希·思衡托",
+  "type": "spine",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    }
+  ],
+  "displayScale": 0.93
+}

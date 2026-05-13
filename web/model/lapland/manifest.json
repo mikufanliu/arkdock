@@ -1,0 +1,47 @@
+{
+  "name": "拉普兰德",
+  "type": "spine",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "典雅噩兆",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "boc_1_front"
+        },
+        {
+          "name": "基建",
+          "path": "boc_1_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "boc_1_back"
+        }
+      ]
+    }
+  ],
+  "displayScale": 0.97,
+  "modeScales": {
+    "default_build": 0.89,
+    "default_back": 1.1,
+    "boc_1_front": 0.79,
+    "boc_1_build": 1.1
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "荒芜拉普兰德",
+  "skills": [
+    {
+      "name": "慵怠者悲鸣",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1_Begin",
+      "voiceLine": "怎么办？一下子就认出你是谁了。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "逐猎狂飙",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "演出都要结束了，你们还在等什么？",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "终幕·浩劫",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3_Begin",
+      "voiceLine": "所有人都在看着我们呢，哈哈！",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

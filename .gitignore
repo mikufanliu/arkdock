@@ -1,15 +1,10 @@
 # Build
-.build/
-DerivedData/
-*.xcodeproj/xcuserdata/
+target/
+dist/
 
 # macOS
 .DS_Store
 *.swp
-
-# Model files (large binary, users download themselves)
-web/model/*/
-!web/model/.gitkeep
 
 # Python
 __pycache__/
@@ -19,6 +14,7 @@ __pycache__/
 
 # Dev artifacts
 web/_test_anims.html
+_calibrate_tmp.html
 
 # Logs
 *.log

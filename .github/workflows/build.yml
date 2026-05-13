@@ -5,56 +5,48 @@ on:
     tags: ['v*']
 
 jobs:
-  build:
-    runs-on: macos-15
+  build-macos:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve web symlink
-        run: |
-          rm -f ArkDock/Sources/web
-          cp -R web ArkDock/Sources/web
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Build
-        run: cd ArkDock && swift build -c release
-
-      - name: Create .app bundle
-        run: |
-          APP="dist/ArkDock.app/Contents"
-          mkdir -p "$APP/MacOS" "$APP/Resources"
-          cp ArkDock/.build/release/ArkDock "$APP/MacOS/"
-          cp ArkDock/Info.plist "$APP/"
-          # Copy bundled resources if they exist
-          BUNDLE_DIR="ArkDock/.build/release/ArkDock_ArkDock.bundle"
-          if [ -d "$BUNDLE_DIR" ]; then
-            cp -R "$BUNDLE_DIR" "$APP/Resources/"
-          fi
-
-      - name: Create DMG
-        run: |
-          mkdir -p dmg_contents
-          cp -R dist/ArkDock.app dmg_contents/
-          ln -s /Applications dmg_contents/Applications
-          hdiutil create -volname "ArkDock" -srcfolder dmg_contents -ov -format UDZO ArkDock.dmg
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          name: ArkDock-macOS
-          path: ArkDock.dmg
+          workspaces: src-tauri
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "ArkDock ${{ github.ref_name }}"
+          releaseBody: ""
+          releaseDraft: true
+
+  build-windows:
+    runs-on: windows-latest
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: ArkDock-macOS
+      - uses: actions/checkout@v4
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
         with:
-          files: ArkDock.dmg
-          generate_release_notes: true
+          workspaces: src-tauri
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "ArkDock ${{ github.ref_name }}"
+          releaseBody: ""
+          releaseDraft: true

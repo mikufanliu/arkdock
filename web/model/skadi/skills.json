@@ -1,0 +1,29 @@
+{
+  "name": "斯卡蒂",
+  "skills": [
+    {
+      "name": "迅捷打击·γ型",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1",
+      "voiceLine": "谁知道潮湿的海草间蛰伏着什么？",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "跃浪击",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2",
+      "voiceLine": "这把剑的过去可是很恐怖的。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "涌潮悲歌",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3",
+      "voiceLine": "纠缠着我的噩梦啊，唱个歌吧。",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

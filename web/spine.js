@@ -5,14 +5,16 @@ let idleAnim = null;
 let idleTimer = null;
 let displayScale = 1.0;
 let userScale = 1.0;
+const MODEL_BASE = window.SPINE_MODEL_BASE || "model/";
 
 async function initSpine() {
     const canvas = document.getElementById("spine-canvas");
+    const mainArea = document.getElementById("main-area") || canvas.parentElement;
 
     app = new PIXI.Application({
         view: canvas,
         autoStart: true,
-        resizeTo: window,
+        resizeTo: mainArea,
         backgroundAlpha: 0,
         resolution: window.devicePixelRatio || 2,
         autoDensity: true,
@@ -57,31 +59,66 @@ async function initSpine() {
         if (spineObj) fitSpine();
     });
 
+    window._pixiApp = app;
     console.log("Spine renderer initialized");
 }
 
+window.destroySpineApp = function() {
+    stopIdleTimer();
+    if (spineObj) {
+        app.stage.removeChild(spineObj);
+        spineObj.destroy({ children: true, texture: true, baseTexture: true });
+        spineObj = null;
+    }
+    app.stage.removeChildren();
+    currentAnimations = [];
+    idleAnim = null;
+};
+
 function fitSpine() {
     if (!spineObj || !app) return;
-    const bounds = spineObj.getLocalBounds();
-    console.log("Spine bounds:", JSON.stringify({x: bounds.x, y: bounds.y, w: bounds.width, h: bounds.height}), "screen:", app.screen.width, "x", app.screen.height, "displayScale:", displayScale);
-    const targetHeight = app.screen.height * 0.7 * displayScale * userScale;
-    const scale = targetHeight / bounds.height;
+
+    const bottomMargin = 90;
+    const topMargin = 50;
+    const availableHeight = app.screen.height - bottomMargin - topMargin;
+
+    // Use setup pose bounds for consistent sizing across animations
+    let refHeight;
+    const skelData = spineObj.spineData || spineObj.skeleton?.data;
+    if (skelData && skelData.height > 10) {
+        refHeight = skelData.height;
+    } else {
+        // Measure setup pose bounds (stable reference, not affected by current animation)
+        spineObj.skeleton.setToSetupPose();
+        spineObj.skeleton.updateWorldTransform();
+        const setupBounds = spineObj.getLocalBounds();
+        refHeight = setupBounds.height;
+        // Restore animation
+        if (spineObj.state.getCurrent(0)) {
+            spineObj.state.apply(spineObj.skeleton);
+            spineObj.skeleton.updateWorldTransform();
+        }
+    }
+
+    const targetHeight = availableHeight * displayScale * userScale;
+    const scale = targetHeight / refHeight;
+
     spineObj.scale.set(scale);
     spineObj.x = app.screen.width / 2;
-    spineObj.y = app.screen.height * 0.88;
+    spineObj.y = app.screen.height - bottomMargin;
 }
 
 // === 模型加载 ===
 
 window.switchSpineModel = async function(modelId) {
-    const basePath = "model/" + modelId + "/";
+    const basePath = MODEL_BASE + modelId + "/";
     const charId = modelId.split("/")[0];
     const modePath = modelId.split("/").slice(1).join("/");
 
     try {
         // 读取 manifest 获取 displayScale
         try {
-            const manifestResp = await fetch("model/" + charId + "/manifest.json");
+            const manifestResp = await fetch(MODEL_BASE + charId + "/manifest.json");
             if (manifestResp.ok) {
                 const manifest = await manifestResp.json();
                 let base = manifest.displayScale || 1.0;
@@ -94,15 +131,26 @@ window.switchSpineModel = async function(modelId) {
             displayScale = 1.0;
         }
 
-        const resp = await fetch(basePath);
-        const html = await resp.text();
-        const skelMatch = html.match(/[\w\-\.]+\.skel/i);
-        if (!skelMatch) {
+        let skelName = null;
+
+        // 如果有 findSkelFile hook（Tauri 环境），用它查找 .skel 文件
+        if (window.findSkelFile) {
+            skelName = await window.findSkelFile(charId, modePath);
+        } else {
+            // 降级：通过目录列表查找（本地 HTTP server 环境）
+            const resp = await fetch(basePath);
+            const html = await resp.text();
+            const skelMatch = html.match(/[\w\-\.]+\.skel/i);
+            if (skelMatch) {
+                skelName = skelMatch[0].replace(".skel", "");
+            }
+        }
+
+        if (!skelName) {
             console.error("找不到 .skel 文件:", modelId);
             return;
         }
 
-        const skelName = skelMatch[0].replace(".skel", "");
         const skelPath = basePath + skelName + ".skel";
         const atlasPath = basePath + skelName + ".atlas";
 
@@ -114,22 +162,36 @@ window.switchSpineModel = async function(modelId) {
 };
 
 async function loadSpineModel(name, skelPath, atlasPath) {
-    if (spineObj) {
-        app.stage.removeChild(spineObj);
-        spineObj.destroy();
-        spineObj = null;
-    }
     stopIdleTimer();
 
+    // Destroy live2d and mmd if active
+    if (window.destroyLive2D) window.destroyLive2D();
+    if (window.destroyMMD) window.destroyMMD();
+    const mmdCanvas = document.getElementById('mmd-canvas');
+    if (mmdCanvas) mmdCanvas.style.display = 'none';
+    const spineCanvas = document.getElementById('spine-canvas');
+    if (spineCanvas) spineCanvas.style.display = 'block';
+
+    // Clear old spine object and stage
+    if (spineObj) {
+        app.stage.removeChild(spineObj);
+        spineObj.destroy({ children: true, texture: true, baseTexture: true });
+        spineObj = null;
+    }
+    app.stage.removeChildren();
+    currentAnimations = [];
+    idleAnim = null;
+
+    const loaderId = name + "_" + Date.now();
     const loader = new PIXI.Loader();
-    loader.add(name, skelPath, {
+    loader.add(loaderId, skelPath, {
         metadata: { spineAtlasFile: atlasPath },
         xhrType: PIXI.LoaderResource.XHR_RESPONSE_TYPE.BUFFER,
     });
 
     return new Promise((resolve, reject) => {
         loader.load((loader, resources) => {
-            const res = resources[name];
+            const res = resources[loaderId];
             if (!res || !res.spineData) {
                 reject(new Error("Spine 数据加载失败"));
                 return;
@@ -167,11 +229,15 @@ async function loadSpineModel(name, skelPath, atlasPath) {
             currentAnimations.forEach(a => { motionGroups[a] = 1; });
             notifySwift("ready", { expressions: [], motionGroups });
 
+            // Refit after a frame to ensure correct dimensions
+            requestAnimationFrame(() => fitSpine());
+
             console.log("Spine 加载完成, idle:", idleAnim, ", start:", startAnim || "无");
+            loader.destroy();
             resolve();
         });
 
-        loader.onError.add((err) => reject(err));
+        loader.onError.add((err) => { loader.destroy(); reject(err); });
     });
 }
 
@@ -230,20 +296,42 @@ function getRandomActions() {
 }
 
 function buildPlayableSequence(animName) {
-    // 从动画名推导出 base（去掉 _Begin/_End/_Loop/_Start/_Attack/_Idle + 可选单字符后缀）
     let base = animName.replace(/[_\s]?(Begin|End|Loop|Down_Loop|Attack|Idle|Start).?$/i, '');
-    if (base === animName) base = animName;
+    if (base === animName) {
+        // animName itself might be a base name (e.g. "Skill_3")
+        // Check if Start/Begin/Loop variants exist
+        const baseEsc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const begin = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(Begin|Start).?$', 'i').test(a));
+        const loop = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(Loop|Down_Loop).?$', 'i').test(a));
+        const end = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(End).?$', 'i').test(a));
 
-    // 尝试匹配序列（兼容后缀如 Z, v）
-    const begin = currentAnimations.find(a => new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '_(Begin|Start).?$', 'i').test(a));
-    const loop = currentAnimations.find(a => new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '_(Loop|Down_Loop).?$', 'i').test(a));
-    const end = currentAnimations.find(a => new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '_(End).?$', 'i').test(a));
+        if (begin && end) {
+            const seq = [begin];
+            if (loop) seq.push(loop);
+            seq.push(end);
+            return seq;
+        }
+        if (begin && loop) {
+            return [begin, loop];
+        }
+        if (begin) return [begin];
+        // No sequence parts found — play animName itself if it exists
+        return [animName];
+    }
+
+    const baseEsc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const begin = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(Begin|Start).?$', 'i').test(a));
+    const loop = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(Loop|Down_Loop).?$', 'i').test(a));
+    const end = currentAnimations.find(a => new RegExp('^' + baseEsc + '_(End).?$', 'i').test(a));
 
     if (begin && end) {
         const seq = [begin];
         if (loop) seq.push(loop);
         seq.push(end);
         return seq;
+    }
+    if (begin && loop) {
+        return [begin, loop];
     }
     if (begin) return [begin];
     return [animName];
@@ -262,8 +350,8 @@ function playSequenceChain(chain) {
         const isLoop = /loop/i.test(chain[i]);
         if (isLoop) {
             state.addAnimation(0, chain[i], true, 0);
-            // loop 段播 2 秒后接下一段
             if (i + 1 < chain.length) {
+                // loop then remaining parts
                 const remaining = chain.slice(i + 1);
                 setTimeout(() => {
                     state.setAnimation(0, remaining[0], false);
@@ -283,7 +371,16 @@ function playSequenceChain(chain) {
                 });
                 return;
             }
-            break;
+            // loop is last item: play for 3 seconds then return to idle
+            setTimeout(() => {
+                if (idleAnim) {
+                    state.setAnimation(0, idleAnim, true);
+                }
+                isPlayingAction = false;
+                startIdleTimer();
+                state.clearListeners();
+            }, 3000);
+            return;
         }
         state.addAnimation(0, chain[i], false, 0);
     }
@@ -333,7 +430,21 @@ window.playMotion = function(name, index) {
     if (!spineObj) return;
 
     console.log("playMotion called:", name, "available:", currentAnimations.join(","));
-    const animName = currentAnimations.find(a => a === name) || currentAnimations[index];
+    let animName = currentAnimations.find(a => a === name);
+    if (!animName) {
+        animName = currentAnimations.find(a => a.toLowerCase() === name.toLowerCase());
+    }
+    if (!animName) {
+        animName = currentAnimations.find(a => a.toLowerCase().includes(name.toLowerCase())
+            || name.toLowerCase().includes(a.toLowerCase()));
+    }
+    // Fallback: Skill_N -> try Attack series
+    if (!animName && /^skill/i.test(name)) {
+        animName = currentAnimations.find(a => /^attack/i.test(a));
+    }
+    if (!animName) {
+        animName = currentAnimations[index];
+    }
     if (animName) {
         const chain = buildPlayableSequence(animName);
         console.log("手动动作:", chain.join(" → "));
@@ -370,7 +481,9 @@ window.setEmotion = function(mood, energy) {
 // === 与 Swift 通信 ===
 
 function notifySwift(type, data) {
-    if (window.webkit && window.webkit.messageHandlers.petEvent) {
+    if (window.notifySwift && window.notifySwift !== notifySwift) {
+        window.notifySwift(type, data);
+    } else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.petEvent) {
         window.webkit.messageHandlers.petEvent.postMessage({ type, ...data });
     }
 }

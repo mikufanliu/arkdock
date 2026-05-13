@@ -429,7 +429,7 @@ def download_voice_lines(display_name, char_code, output_dir, lang="cn"):
         voice_path_prefix = f"{voice_dir}/{voice_char_code}"
     print(f"  音频路径: {voice_path_prefix}")
 
-    audio_dir = os.path.join(output_dir, "voice")
+    audio_dir = os.path.join(output_dir, "voice", lang)
     os.makedirs(audio_dir, exist_ok=True)
 
     voice_lines_out = []
@@ -984,8 +984,8 @@ def main():
     parser.add_argument("--code", help="手动指定 char_code")
     parser.add_argument("--skip-voice", action="store_true", help="跳过语音下载")
     parser.add_argument("--skip-skills", action="store_true", help="跳过技能抓取")
-    parser.add_argument("--lang", default="cn", choices=["cn", "jp", "dialect"],
-                        help="语音语言: cn=中文普通话, jp=日语, dialect=中文方言 (默认: cn)")
+    parser.add_argument("--lang", default="all", choices=["cn", "jp", "dialect", "all"],
+                        help="语音语言: cn=中文普通话, jp=日语, dialect=中文方言, all=全部 (默认: all)")
     args = parser.parse_args()
 
     # Step 1: Resolve character
@@ -1017,7 +1017,11 @@ def main():
 
     # Step 4: Download voice lines
     if not args.skip_voice:
-        download_voice_lines(display_name, char_code, output_dir, lang=args.lang)
+        if args.lang == "all":
+            for lang in ["cn", "jp", "dialect"]:
+                download_voice_lines(display_name, char_code, output_dir, lang=lang)
+        else:
+            download_voice_lines(display_name, char_code, output_dir, lang=args.lang)
     else:
         print("\n[4/7] 跳过语音下载")
 

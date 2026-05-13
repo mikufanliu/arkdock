@@ -1,0 +1,21 @@
+{
+  "name": "拉普兰德",
+  "skills": [
+    {
+      "name": "日晷",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill",
+      "voiceLine": "加油！还差一点。你就能干掉我了！",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "狼魂",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill",
+      "voiceLine": "你能做到吗？",
+      "audioFile": "cn_026.wav"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "凯尔希·思衡托",
+  "skills": [
+    {
+      "name": "应急肃正防线",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "",
+      "voiceLine": "方舟生物协议启动。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "保护性拒止",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "指令：修复。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "破梏重生",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "",
+      "voiceLine": "Mon3tr，我需要你保护伤员。",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

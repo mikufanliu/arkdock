@@ -1,0 +1,29 @@
+{
+  "name": "陈",
+  "skills": [
+    {
+      "name": "鞘击",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill",
+      "voiceLine": "斩！",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "赤霄·拔刀",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2",
+      "voiceLine": "闪！",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "赤霄·绝影",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3",
+      "voiceLine": "放下你的武器！",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

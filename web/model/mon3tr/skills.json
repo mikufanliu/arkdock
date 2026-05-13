@@ -1,0 +1,29 @@
+{
+  "name": "Mon3tr",
+  "skills": [
+    {
+      "name": "策略：超压链接",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1",
+      "voiceLine": "毁灭，同时治愈。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "策略：超负荷",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "我的爪子会替我听诊。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "策略：熔毁",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3_Begin",
+      "voiceLine": "忍住，可能会有些刺痛。",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

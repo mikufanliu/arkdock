@@ -1,0 +1,29 @@
+{
+  "name": "玛恩纳",
+  "skills": [
+    {
+      "name": "未声张的怒火",
+      "description": "攻击力提升，普通攻击变为连续的范围物理伤害",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1",
+      "voiceLine": "不会刺痛你的眼睛。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "未宽解的悲哀",
+      "description": "攻击力大幅提升，攻击范围扩大，连续对范围内敌人造成物理伤害",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2",
+      "voiceLine": "令人厌倦。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "未照耀的荣光",
+      "description": "攻击力极大提升，对前方扇形范围内所有敌人造成多次物理伤害",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3",
+      "voiceLine": "......下雨了。",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+[package]
+name = "arkdock"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "protocol-asset", "macos-private-api", "image-png"] }
+tauri-plugin-fs = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rodio = { version = "0.19", default-features = false, features = ["wav"] }
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+

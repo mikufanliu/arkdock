@@ -1,0 +1,16 @@
+{
+  "name": "霜星",
+  "type": "spine",
+  "displayScale": 1.14,
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "默认",
+          "path": "front"
+        }
+      ]
+    }
+  ]
+}

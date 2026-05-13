@@ -1,0 +1,25 @@
+{
+  "name": "IceGirl",
+  "emotionMap": {
+    "happy": "星星眼",
+    "excited": "爱心眼",
+    "normal": null,
+    "irritated": "生气",
+    "sad": "流泪",
+    "shy": "脸红",
+    "confused": "疑惑",
+    "surprised": "惊讶",
+    "disgusted": "脸黑"
+  },
+  "motionMap": {
+    "excited": { "group": "Action", "index": 2 },
+    "greeting": { "group": "Action", "index": 1 }
+  },
+  "idleGroup": "Action",
+  "idleIndex": 0,
+  "boredExpressions": ["疑惑", "白眼", "舌头", "猫耳", "脸红", "惊讶"],
+  "boredMotions": [
+    { "group": "Action", "index": 1 },
+    { "group": "Action", "index": 2 }
+  ]
+}

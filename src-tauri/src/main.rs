@@ -1,0 +1,52 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+mod commands;
+mod tray;
+
+use tauri::{Emitter, Manager};
+use tauri::webview::Color;
+
+fn main() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .setup(|app| {
+            tray::create_tray(app.handle())?;
+            let window = app.get_webview_window("main").unwrap();
+            window.set_ignore_cursor_events(false).ok();
+            window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+            Ok(())
+        })
+        .on_menu_event(|app, event| {
+            let id = event.id().as_ref().to_string();
+            if let Some(model_id) = id.strip_prefix("model:") {
+                app.emit("switch-model", model_id.to_string()).ok();
+            } else if let Some(motion) = id.strip_prefix("ctx_motion:") {
+                app.emit("play-motion", motion.to_string()).ok();
+            } else if let Some(scale_str) = id.strip_prefix("ctx_scale:") {
+                if let Ok(pct) = scale_str.parse::<u32>() {
+                    let scale = pct as f64 / 100.0;
+                    app.emit("set-scale", scale).ok();
+                }
+            } else if id == "ctx_flip" {
+                app.emit("flip-model", ()).ok();
+            } else if id == "ctx_clear" {
+                app.emit("clear-chat", ()).ok();
+            } else if id == "ctx_quit" {
+                app.exit(0);
+            }
+        })
+        .invoke_handler(tauri::generate_handler![
+            commands::list_characters,
+            commands::read_json_file,
+            commands::list_model_files,
+            commands::save_config,
+            commands::load_config,
+            commands::save_chat_history,
+            commands::load_chat_history,
+            commands::play_audio,
+            commands::get_model_base_url,
+            commands::show_context_menu,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

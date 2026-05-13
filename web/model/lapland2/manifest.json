@@ -1,0 +1,47 @@
+{
+  "name": "荒芜拉普兰德",
+  "type": "spine",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "无序的谦卑",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "sale_15_front"
+        },
+        {
+          "name": "基建",
+          "path": "sale_15_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "sale_15_back"
+        }
+      ]
+    }
+  ],
+  "displayScale": 0.78,
+  "modeScales": {
+    "default_build": 0.94,
+    "sale_15_front": 1.1,
+    "sale_15_build": 1.63,
+    "sale_15_back": 1.1
+  }
+}

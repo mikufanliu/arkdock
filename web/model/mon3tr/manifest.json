@@ -1,0 +1,47 @@
+{
+  "name": "Mon3tr",
+  "type": "spine",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "锋锐",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "boc_11_front"
+        },
+        {
+          "name": "基建",
+          "path": "boc_11_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "boc_11_back"
+        }
+      ]
+    }
+  ],
+  "displayScale": 0.98,
+  "modeScales": {
+    "default_build": 1.25,
+    "boc_11_front": 0.88,
+    "boc_11_build": 0.91,
+    "boc_11_back": 0.88
+  }
+}

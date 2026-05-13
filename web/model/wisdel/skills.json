@@ -1,0 +1,29 @@
+{
+  "name": "维什戴尔",
+  "skills": [
+    {
+      "name": "定点清算",
+      "description": "攻击力提升，普通攻击变为对目标及周围一定范围内的所有敌人造成物理伤害",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1",
+      "voiceLine": "真可怜，今天轮到你倒霉。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "饱和复仇",
+      "description": "攻击力大幅提升，攻击间隔缩短，优先攻击残影标记的敌人",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "别急别急，人人有份~",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "爆裂黎明",
+      "description": "攻击力大幅提升，召唤残影对所有标记敌人发动集中打击",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3_Begin",
+      "voiceLine": "你们很小心脚下呢。不如，抬头看看怎么样？",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}

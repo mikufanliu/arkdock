@@ -36,7 +36,7 @@ import {
 	RGB_PVRTC_2BPPV1_Format,
 	RGB_ETC1_Format,
 	RGB_ETC2_Format
-} from './three.module.js';
+} from 'three';
 import { MMDToonShader } from './MMDToonShader.js';
 import { TGALoader } from './TGALoader.js';
 import { MMDParser } from './mmdparser.module.js';
@@ -1356,7 +1356,6 @@ class MaterialBuilder {
 
 	_loadTexture( filePath, textures, params, onProgress, onError ) {
 
-		filePath = filePath.replace( /\\/g, '/' );
 		params = params || {};
 
 		const scope = this;

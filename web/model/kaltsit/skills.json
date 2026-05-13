@@ -1,0 +1,29 @@
+{
+  "name": "凯尔希·思衡托",
+  "skills": [
+    {
+      "name": "应急肃正防线",
+      "description": "攻击力+90%，攻击速度+50，所有其他友方干员阻挡范围扩大",
+      "icon": "skills/skill_1.png",
+      "animation": "Attack_Begin",
+      "voiceLine": "方舟生物协议启动。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "保护性拒止",
+      "description": "攻击范围扩大，射出医疗单元对敌人造成真实伤害并治疗友方",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "指令：修复。",
+      "audioFile": "cn_027.wav"
+    },
+    {
+      "name": "破梏重生",
+      "description": "获得战术锚点，攻击力+150%，攻击间隔大幅缩小，额外治疗1个目标",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3_Restart_Begin",
+      "voiceLine": "Mon3tr，我需要你保护伤员。",
+      "audioFile": "cn_028.wav"
+    }
+  ]
+}

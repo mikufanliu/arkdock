@@ -1,0 +1,52 @@
+{
+  "name": "浊心斯卡蒂",
+  "type": "spine",
+  "displayScale": 1.17,
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        }
+      ]
+    },
+    {
+      "name": "升华",
+      "modes": [
+        {
+          "name": "战斗",
+          "path": "boc_4_front"
+        },
+        {
+          "name": "基建",
+          "path": "boc_4_build"
+        }
+      ]
+    },
+    {
+      "name": "红女爵",
+      "modes": [
+        {
+          "name": "战斗",
+          "path": "iteration_2_front"
+        },
+        {
+          "name": "基建",
+          "path": "iteration_2_build"
+        }
+      ]
+    }
+  ],
+  "modeScales": {
+    "boc_4_front": 0.83,
+    "boc_4_build": 0.9,
+    "iteration_2_front": 0.73,
+    "iteration_2_build": 1.08
+  }
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArkDock</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/web/lib/pixi.min.js"></script>
+    <script src="/web/lib/pixi-spine.umd.js"></script>
+    <script src="/web/lib/live2dcubismcore.min.js"></script>
+    <script src="/web/lib/pixi-live2d-display.min.js"></script>
+    <script>window.SPINE_MODEL_BASE = "/web/model/";</script>
+    <script type="importmap">{"imports":{"three":"/web/lib/three.module.min.js"}}</script>
+</head>
+<body>
+    <div id="app-container">
+        <!-- 主区域 350px -->
+        <div id="main-area">
+            <canvas id="spine-canvas"></canvas>
+            <canvas id="mmd-canvas" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+
+            <div id="bubble" class="bubble hidden">
+                <div class="bubble-content">
+                    <p id="bubble-text"></p>
+                </div>
+                <div class="bubble-arrow"></div>
+            </div>
+
+            <div id="skill-bar" class="skill-bar"></div>
+
+            <div id="input-area" class="input-area hidden">
+                <input type="text" id="chat-input" placeholder="说点什么...">
+                <button id="send-btn">↑</button>
+            </div>
+
+            <!-- 右侧展开按钮 -->
+            <button id="panel-toggle" class="panel-toggle">🎭</button>
+        </div>
+
+        <!-- 侧边动作面板 120px（窗口扩展时显示）-->
+        <div id="action-panel" class="action-panel hidden">
+            <div class="panel-tabs">
+                <button class="tab-btn active" data-tab="archive">档案</button>
+                <button class="tab-btn" data-tab="motions">动作</button>
+                <button class="tab-btn" data-tab="voice">语音</button>
+                <button class="tab-btn" data-tab="settings">设置</button>
+            </div>
+            <div class="panel-content" id="panel-content"></div>
+        </div>
+    </div>
+
+    <script src="/web/spine.js"></script>
+    <script src="/web/live2d-tauri.js"></script>
+    <script type="module" src="/web/mmd-tauri.js"></script>
+    <script src="state.js"></script>
+    <script src="chat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

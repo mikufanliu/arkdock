@@ -1,0 +1,15 @@
+{
+  "name": "IceGirl",
+  "type": "live2d",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "默认",
+          "path": "."
+        }
+      ]
+    }
+  ]
+}

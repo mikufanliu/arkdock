@@ -1,0 +1,68 @@
+{
+  "name": "陈",
+  "type": "spine",
+  "displayScale": 0.99,
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "初晴",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "sale_10_front"
+        },
+        {
+          "name": "基建",
+          "path": "sale_10_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "sale_10_back"
+        }
+      ]
+    },
+    {
+      "name": "岁红霞",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "nian_2_front"
+        },
+        {
+          "name": "基建",
+          "path": "nian_2_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "nian_2_back"
+        }
+      ]
+    }
+  ],
+  "modeScales": {
+    "default_build": 1.17,
+    "default_back": 1.3,
+    "sale_10_front": 1.33,
+    "sale_10_build": 1.1,
+    "sale_10_back": 0.82,
+    "nian_2_front": 1.22,
+    "nian_2_build": 0.91,
+    "nian_2_back": 1.23
+  }
+}

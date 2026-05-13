@@ -1,0 +1,66 @@
+{
+  "name": "斯卡蒂",
+  "type": "spine",
+  "displayScale": 1.24,
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "下一顿午茶",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "marthe_5_front"
+        },
+        {
+          "name": "基建",
+          "path": "marthe_5_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "marthe_5_back"
+        }
+      ]
+    },
+    {
+      "name": "驭浪 WR04",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "summer_3_front"
+        },
+        {
+          "name": "基建",
+          "path": "summer_3_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "summer_3_back"
+        }
+      ]
+    }
+  ],
+  "modeScales": {
+    "marthe_5_front": 0.81,
+    "marthe_5_build": 1.09,
+    "marthe_5_back": 0.81,
+    "summer_3_front": 0.92,
+    "summer_3_build": 0.6,
+    "summer_3_back": 0.92
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "name": "玛恩纳",
+  "type": "spine",
+  "skins": [
+    {
+      "name": "默认",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "default_front"
+        },
+        {
+          "name": "基建",
+          "path": "default_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "default_back"
+        }
+      ]
+    },
+    {
+      "name": "苍茫怒号",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "iteration_3_front"
+        },
+        {
+          "name": "基建",
+          "path": "iteration_3_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "iteration_3_back"
+        }
+      ]
+    },
+    {
+      "name": "远路",
+      "modes": [
+        {
+          "name": "战斗(正面)",
+          "path": "epoque_28_front"
+        },
+        {
+          "name": "基建",
+          "path": "epoque_28_build"
+        },
+        {
+          "name": "战斗(背面)",
+          "path": "epoque_28_back"
+        }
+      ]
+    }
+  ],
+  "displayScale": 0.84,
+  "modeScales": {
+    "iteration_3_front": 0.82,
+    "iteration_3_build": 0.27,
+    "iteration_3_back": 0.82,
+    "epoque_28_front": 1.06,
+    "epoque_28_build": 0.63,
+    "epoque_28_back": 1.05
+  }
+}

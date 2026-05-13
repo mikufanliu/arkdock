@@ -1,0 +1,29 @@
+{
+  "name": "浊心斯卡蒂",
+  "skills": [
+    {
+      "name": "同归殊途之吟",
+      "description": "",
+      "icon": "skills/skill_1.png",
+      "animation": "Skill_1_Begin",
+      "voiceLine": "空气与陆地......都太干燥。",
+      "audioFile": "cn_025.wav"
+    },
+    {
+      "name": "同葬无光之愿",
+      "description": "",
+      "icon": "skills/skill_2.png",
+      "animation": "Skill_2_Begin",
+      "voiceLine": "歌声会沁入你们的心灵。",
+      "audioFile": "cn_026.wav"
+    },
+    {
+      "name": "\"潮涌，潮枯\"",
+      "description": "",
+      "icon": "skills/skill_3.png",
+      "animation": "Skill_3_Begin",
+      "voiceLine": "随我走吧，随我回去我们永恒的故乡。",
+      "audioFile": "cn_027.wav"
+    }
+  ]
+}
