@@ -14,20 +14,37 @@ const state = {
     currentSkinIndex: 0,
     currentModeIndex: 0,
     voiceLang: "cn",
+    userScale: 1.0,
 };
 
 async function initState() {
     state.config = await invoke("load_config") || null;
     state.characters = await invoke("list_characters");
+
+    // Load global prefs (last character, etc.)
+    const globalPrefs = await invoke("load_char_prefs", { charId: "_global" });
+    const lastChar = globalPrefs && globalPrefs.lastChar;
+
     if (state.characters.length > 0) {
-        const spineChar = state.characters.find(c => c.model_type === "spine");
-        await switchCharacter((spineChar || state.characters[0]).id);
+        const target = lastChar && state.characters.find(c => c.id === lastChar);
+        const fallback = state.characters.find(c => c.model_type === "spine") || state.characters[0];
+        await switchCharacter((target || fallback).id);
     }
 }
 
 async function switchCharacter(charId) {
     state.currentChar = charId;
     state.chatHistory = await invoke("load_chat_history", { charId });
+
+    // Load per-character preferences (scale, voiceLang)
+    const prefs = await invoke("load_char_prefs", { charId });
+    if (prefs) {
+        if (prefs.scale != null) state.userScale = prefs.scale;
+        else state.userScale = 1.0;
+        if (prefs.voiceLang) state.voiceLang = prefs.voiceLang;
+    } else {
+        state.userScale = 1.0;
+    }
 
     const personaJson = await invoke("read_json_file", { charId, filename: "persona.json" });
     state.persona = personaJson ? JSON.parse(personaJson) : null;
@@ -92,6 +109,19 @@ async function switchCharacter(charId) {
     } else if (manifestObj.type === "mmd") {
         window.switchMMDModel(charId + "/" + defaultMode);
     }
+
+    // Apply saved user scale after a short delay (model needs to load first)
+    if (state.userScale !== 1.0) {
+        setTimeout(() => {
+            if (manifestObj.type === "mmd") {
+                if (window.mmdSetScale) window.mmdSetScale(state.userScale);
+            } else {
+                if (window.setUserScale) window.setUserScale(state.userScale);
+            }
+        }, 300);
+    }
+
+    saveGlobalPrefs();
 }
 
 function switchToMode(skinIndex, modeIndex) {
@@ -113,6 +143,21 @@ function switchToMode(skinIndex, modeIndex) {
 async function saveConfig(config) {
     state.config = config;
     await invoke("save_config", { config });
+}
+
+async function saveCharPrefs() {
+    if (!state.currentChar) return;
+    await invoke("save_char_prefs", {
+        charId: state.currentChar,
+        prefs: { scale: state.userScale, voiceLang: state.voiceLang },
+    });
+}
+
+async function saveGlobalPrefs() {
+    await invoke("save_char_prefs", {
+        charId: "_global",
+        prefs: { lastChar: state.currentChar },
+    });
 }
 
 async function saveChatHistory() {

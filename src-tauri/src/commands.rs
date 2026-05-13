@@ -103,6 +103,22 @@ pub fn load_config(app: AppHandle) -> Option<LLMConfig> {
     serde_json::from_str(&data).ok()
 }
 
+#[tauri::command]
+pub fn save_char_prefs(app: AppHandle, char_id: String, prefs: serde_json::Value) -> Result<(), String> {
+    let dir = data_dir(&app).join("prefs");
+    fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+    let path = dir.join(format!("{}.json", char_id));
+    let data = serde_json::to_string(&prefs).map_err(|e| e.to_string())?;
+    fs::write(path, data).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn load_char_prefs(app: AppHandle, char_id: String) -> Option<serde_json::Value> {
+    let path = data_dir(&app).join("prefs").join(format!("{}.json", char_id));
+    let data = fs::read_to_string(path).ok()?;
+    serde_json::from_str(&data).ok()
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct ChatMessage {
     pub role: String,

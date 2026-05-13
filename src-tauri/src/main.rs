@@ -41,6 +41,8 @@ fn main() {
             commands::list_model_files,
             commands::save_config,
             commands::load_config,
+            commands::save_char_prefs,
+            commands::load_char_prefs,
             commands::save_chat_history,
             commands::load_chat_history,
             commands::play_audio,

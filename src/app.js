@@ -280,6 +280,7 @@ function renderVoiceTab(container) {
         btn.textContent = l.label;
         btn.addEventListener("click", () => {
             state.voiceLang = l.id;
+            saveCharPrefs();
             renderVoiceTab(container);
         });
         langBar.appendChild(btn);
@@ -328,7 +329,7 @@ function renderSettingsTab(container) {
         <label>Model</label>
         <input type="text" id="llm-model" value="${config.model || ''}" placeholder="gpt-4o-mini">
         <label>缩放</label>
-        <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+        <input type="range" id="scale-slider" min="0.5" max="2.0" step="0.1" value="${state.userScale || 1.0}">
         <button class="btn-save" id="save-settings">保存</button>
     `;
     container.appendChild(form);
@@ -352,7 +353,10 @@ function renderSettingsTab(container) {
             renderPanelContent();
         });
         document.getElementById("scale-slider").addEventListener("input", (e) => {
-            window.setUserScale(parseFloat(e.target.value));
+            const scale = parseFloat(e.target.value);
+            state.userScale = scale;
+            saveCharPrefs();
+            window.setUserScale(scale);
         });
         document.getElementById("save-settings").addEventListener("click", async () => {
             await saveConfig({
@@ -534,6 +538,8 @@ async function initApp() {
     });
     listen("set-scale", (event) => {
         if (event.payload != null) {
+            state.userScale = event.payload;
+            saveCharPrefs();
             if (state.manifest && state.manifest.type === "mmd") {
                 if (window.mmdSetScale) window.mmdSetScale(event.payload);
             } else {
