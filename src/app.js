@@ -442,7 +442,6 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 // === 点击交互 ===
 
 function handleTap() {
-    console.log("handleTap triggered, mode:", getCurrentModePath());
     const manifest = state.manifest;
     const skin = manifest && manifest.skins && manifest.skins[state.currentSkinIndex];
     const mode = skin && skin.modes && skin.modes[state.currentModeIndex];
@@ -484,6 +483,7 @@ function findVoiceLine(key) {
 window.notifySwift = function(type, data) {
     if (type === "tap") {
         handleTap();
+        toggleInput();
     } else if (type === "drag") {
         appWindow.startDragging();
     } else if (type === "contextmenu") {

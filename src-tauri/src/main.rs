@@ -11,9 +11,10 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
             tray::create_tray(app.handle())?;
-            let window = app.get_webview_window("main").unwrap();
-            window.set_ignore_cursor_events(false).ok();
-            window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+            if let Some(window) = app.get_webview_window("main") {
+                window.set_ignore_cursor_events(false).ok();
+                window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+            }
             Ok(())
         })
         .on_menu_event(|app, event| {
