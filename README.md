@@ -131,6 +131,12 @@ git push origin v0.1.0
 
 会在 Releases 生成 macOS (.dmg) 和 Windows (.exe) 安装包。
 
+## 数据来源
+
+角色模型、语音、技能等数据通过脚本从 [PRTS Wiki](https://prts.wiki) 自动下载。PRTS 是明日方舟的社区 Wiki，提供了公开的角色资源索引。
+
+本项目不内置任何游戏素材，所有角色数据需用户自行通过 `add_character.py` 导入。
+
 ## 免责声明
 
 本项目为同人/学习交流项目，不以盈利为目的。
