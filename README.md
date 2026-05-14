@@ -133,9 +133,7 @@ git push origin v0.1.0
 
 ## 数据来源
 
-角色模型、语音、技能等数据通过脚本从 [PRTS Wiki](https://prts.wiki) 自动下载。PRTS 是明日方舟的社区 Wiki，提供了公开的角色资源索引。
-
-本项目不内置任何游戏素材，所有角色数据需用户自行通过 `add_character.py` 导入。
+角色模型、语音、技能等数据来自 [PRTS Wiki](https://prts.wiki)（明日方舟社区 Wiki）。可通过 `add_character.py` 脚本自动导入更多角色。
 
 ## 免责声明
 
