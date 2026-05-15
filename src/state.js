@@ -16,14 +16,16 @@ const state = {
     voiceLang: "cn",
     userScale: 1.0,
     modeScales: {},
+    globalPrefs: {},
 };
 
 async function initState() {
     state.config = await invoke("load_config") || null;
     state.characters = await invoke("list_characters");
 
-    // Load global prefs (last character, etc.)
+    // Load global prefs (last character, lastSeenTs, etc.)
     const globalPrefs = await invoke("load_char_prefs", { charId: "_global" });
+    state.globalPrefs = globalPrefs || {};
     const lastChar = globalPrefs && globalPrefs.lastChar;
 
     if (state.characters.length > 0) {
@@ -184,7 +186,7 @@ async function saveCharPrefs() {
 async function saveGlobalPrefs() {
     await invoke("save_char_prefs", {
         charId: "_global",
-        prefs: { lastChar: state.currentChar },
+        prefs: { lastChar: state.currentChar, lastSeenTs: Date.now() },
     });
 }
 

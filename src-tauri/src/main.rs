@@ -23,13 +23,30 @@ fn main() {
                 window.set_ignore_cursor_events(false).ok();
                 window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
 
-                // Restore saved window position
+                // Restore saved window position (with screen bounds check)
                 let path = window_prefs_path(app.handle());
                 if let Ok(data) = fs::read_to_string(&path) {
                     if let Ok(pos) = serde_json::from_str::<serde_json::Value>(&data) {
                         if let (Some(x), Some(y)) = (pos["x"].as_f64(), pos["y"].as_f64()) {
                             use tauri::PhysicalPosition;
-                            window.set_position(PhysicalPosition::new(x as i32, y as i32)).ok();
+                            let mut on_screen = false;
+                            if let Ok(monitors) = window.available_monitors() {
+                                for m in monitors {
+                                    let mp = m.position();
+                                    let ms = m.size();
+                                    let right = mp.x + ms.width as i32;
+                                    let bottom = mp.y + ms.height as i32;
+                                    let xi = x as i32;
+                                    let yi = y as i32;
+                                    if xi >= mp.x - 200 && xi < right && yi >= mp.y - 200 && yi < bottom {
+                                        on_screen = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if on_screen {
+                                window.set_position(PhysicalPosition::new(x as i32, y as i32)).ok();
+                            }
                         }
                     }
                 }

@@ -405,7 +405,7 @@ function stopIdleChat() {
 function scheduleIdleChat() {
     const delay = 30000 + Math.random() * 60000;
     idleChatTimer = setTimeout(() => {
-        const text = scriptedReply();
+        const text = getIdleLine();
         if (text && text !== "……") showBubble(text, 5000);
         scheduleIdleChat();
     }, delay);
@@ -542,9 +542,13 @@ async function initApp() {
     await initState();
     renderSkillBar();
     startIdleChat();
-    if (state.persona && state.persona.greeting) {
-        showBubble(state.persona.greeting, 5000);
+
+    const greeting = getLaunchGreeting();
+    if (greeting) {
+        showBubble(greeting, 5000);
     }
+
+    startHeartbeat();
 
     // Listen for tray/context menu events
     const { listen } = window.__TAURI__.event;
