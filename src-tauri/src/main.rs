@@ -5,6 +5,14 @@ mod tray;
 
 use tauri::{Emitter, Manager};
 use tauri::webview::Color;
+use std::fs;
+use std::path::PathBuf;
+
+fn window_prefs_path(app: &tauri::AppHandle) -> PathBuf {
+    let dir = app.path().app_data_dir().unwrap_or_else(|_| PathBuf::from(".")).join("prefs");
+    fs::create_dir_all(&dir).ok();
+    dir.join("_window.json")
+}
 
 fn main() {
     tauri::Builder::default()
@@ -14,8 +22,26 @@ fn main() {
             if let Some(window) = app.get_webview_window("main") {
                 window.set_ignore_cursor_events(false).ok();
                 window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+
+                // Restore saved window position
+                let path = window_prefs_path(app.handle());
+                if let Ok(data) = fs::read_to_string(&path) {
+                    if let Ok(pos) = serde_json::from_str::<serde_json::Value>(&data) {
+                        if let (Some(x), Some(y)) = (pos["x"].as_f64(), pos["y"].as_f64()) {
+                            use tauri::PhysicalPosition;
+                            window.set_position(PhysicalPosition::new(x as i32, y as i32)).ok();
+                        }
+                    }
+                }
             }
             Ok(())
+        })
+        .on_window_event(|app, event| {
+            if let tauri::WindowEvent::Moved(pos) = event {
+                let path = window_prefs_path(app.app_handle());
+                let json = format!("{{\"x\":{},\"y\":{}}}", pos.x, pos.y);
+                fs::write(path, json).ok();
+            }
         })
         .on_menu_event(|app, event| {
             let id = event.id().as_ref().to_string();

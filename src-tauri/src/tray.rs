@@ -61,11 +61,11 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         &quit,
     ])?;
 
-    let icon = Image::from_bytes(include_bytes!("../icons/32x32.png"))?;
+    let icon = Image::from_bytes(include_bytes!("../icons/tray.png"))?;
 
     TrayIconBuilder::new()
         .icon(icon)
-        .icon_as_template(false)
+        .icon_as_template(true)
         .menu(&menu)
         .tooltip("ArkDock")
         .on_menu_event(|app, event| {
