@@ -1,6 +1,6 @@
 [package]
 name = "arkdock"
-version = "0.1.0"
+version = "0.3.3"
 edition = "2021"
 
 [dependencies]
@@ -12,4 +12,3 @@ rodio = { version = "0.19", default-features = false, features = ["wav"] }
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
-
