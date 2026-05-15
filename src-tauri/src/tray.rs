@@ -12,12 +12,16 @@ use std::path::PathBuf;
 
 static CLICK_THROUGH: AtomicBool = AtomicBool::new(false);
 
-fn model_dir_for_tray() -> PathBuf {
+fn model_dir_for_tray(app: &AppHandle) -> PathBuf {
+    let resource = app.path().resource_dir().unwrap_or_default().join("web").join("model");
+    if resource.exists() {
+        return resource;
+    }
     let dev_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("web").join("model");
     if dev_path.exists() {
         return dev_path.canonicalize().unwrap_or(dev_path);
     }
-    dev_path
+    resource
 }
 
 #[derive(serde::Deserialize)]
@@ -105,10 +109,18 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn build_model_submenu(app: &AppHandle) -> Result<tauri::menu::Submenu<tauri::Wry>, Box<dyn std::error::Error>> {
-    let model_dir = model_dir_for_tray();
+    let model_dir = model_dir_for_tray(app);
     let mut builder = SubmenuBuilder::new(app, "切换模型");
 
-    let mut entries: Vec<_> = fs::read_dir(&model_dir)?
+    let entries_iter = match fs::read_dir(&model_dir) {
+        Ok(entries) => entries,
+        Err(_) => {
+            // Keep app startup resilient even if model directory is missing.
+            return Ok(builder.build()?);
+        }
+    };
+
+    let mut entries: Vec<_> = entries_iter
         .flatten()
         .filter(|e| e.path().is_dir())
         .collect();

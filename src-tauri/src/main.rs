@@ -18,7 +18,9 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            tray::create_tray(app.handle())?;
+            if let Err(err) = tray::create_tray(app.handle()) {
+                eprintln!("failed to create tray: {err}");
+            }
             if let Some(window) = app.get_webview_window("main") {
                 window.set_ignore_cursor_events(false).ok();
                 window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
