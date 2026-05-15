@@ -6,6 +6,62 @@ let idleChatTimer = null;
 let currentTab = "archive";
 let motionGroups = {};
 let modelExpressions = [];
+let activeVoiceAudio = null;
+
+function buildVoiceFallbackUrls(audioFile) {
+    if (!audioFile || !state.currentChar) return [];
+    const raw = String(audioFile).replace(/^\/+/, "");
+    const urls = [];
+    if (raw.includes("/")) {
+        urls.push(`/web/model/${state.currentChar}/${raw}`);
+        return urls;
+    }
+
+    const langOrder = [];
+    const seen = new Set();
+    [state.voiceLang, "cn", "jp", "dialect"].forEach((lang) => {
+        if (!lang || seen.has(lang)) return;
+        seen.add(lang);
+        langOrder.push(lang);
+    });
+    langOrder.forEach((lang) => {
+        urls.push(`/web/model/${state.currentChar}/voice/${lang}/${raw}`);
+    });
+    urls.push(`/web/model/${state.currentChar}/voice/${raw}`);
+    return urls;
+}
+
+async function playVoiceFallback(audioFile) {
+    const urls = buildVoiceFallbackUrls(audioFile);
+    for (const url of urls) {
+        try {
+            const audio = new Audio(url);
+            audio.preload = "auto";
+            if (activeVoiceAudio) {
+                activeVoiceAudio.pause();
+                activeVoiceAudio.currentTime = 0;
+            }
+            await audio.play();
+            activeVoiceAudio = audio;
+            return true;
+        } catch (_) {
+            // try next candidate
+        }
+    }
+    return false;
+}
+
+function playVoiceFile(audioFile) {
+    if (!audioFile || !state.currentChar) return;
+    invoke("play_audio", { charId: state.currentChar, file: audioFile, lang: state.voiceLang })
+        .catch(async (e) => {
+            console.error("play_audio:", e);
+            const fallbackOk = await playVoiceFallback(audioFile);
+            if (!fallbackOk) {
+                showBubble("音频不可用，请检查系统输出设备", 2500);
+            }
+        });
+}
 
 // === 气泡 ===
 
@@ -78,9 +134,7 @@ function activateSkill(skill) {
     if (skill.voiceLine) {
         showBubble(skill.voiceLine, 4000);
         const audioFile = skill.audioFile || skill.voiceFile;
-        if (audioFile && state.currentChar) {
-            invoke("play_audio", { charId: state.currentChar, file: audioFile, lang: state.voiceLang });
-        }
+        playVoiceFile(audioFile);
     } else if (skill.name) {
         showBubble(skill.name, 2000);
     }
@@ -299,9 +353,7 @@ function renderVoiceTab(container) {
         item.textContent = line.title || line.content || line.key;
         item.addEventListener("click", () => {
             if (line.content) showBubble(line.content, 4000);
-            if (line.audioFile && state.currentChar) {
-                invoke("play_audio", { charId: state.currentChar, file: line.audioFile, lang: state.voiceLang });
-            }
+            playVoiceFile(line.audioFile);
         });
         container.appendChild(item);
     });
@@ -452,9 +504,7 @@ function handleTap() {
         const touchLine = findVoiceLine("trust_touch") || findVoiceLine("poke");
         if (touchLine) {
             if (touchLine.content) showBubble(touchLine.content, 4000);
-            if (touchLine.audioFile && state.currentChar) {
-                invoke("play_audio", { charId: state.currentChar, file: touchLine.audioFile, lang: state.voiceLang });
-            }
+            playVoiceFile(touchLine.audioFile);
         } else {
             showBubble("(无触摸语音)", 2000);
         }
@@ -463,9 +513,7 @@ function handleTap() {
         if (selectLines.length > 0) {
             const line = selectLines[Math.floor(Math.random() * selectLines.length)];
             if (line.content) showBubble(line.content, 3000);
-            if (line.audioFile && state.currentChar) {
-                invoke("play_audio", { charId: state.currentChar, file: line.audioFile, lang: state.voiceLang });
-            }
+            playVoiceFile(line.audioFile);
         } else {
             showBubble("(无选中语音)", 2000);
         }
@@ -501,7 +549,9 @@ window.notifySwift = function(type, data) {
         } else {
             motions = Object.keys(motionGroups).sort();
         }
-        invoke("show_context_menu", { motions }).catch(e => console.error("context menu:", e));
+        const x = Number.isFinite(data?.x) ? data.x : null;
+        const y = Number.isFinite(data?.y) ? data.y : null;
+        invoke("show_context_menu", { motions, x, y }).catch(e => console.error("context menu:", e));
     } else if (type === "ready") {
         motionGroups = data.motionGroups || {};
         modelExpressions = data.expressions || [];

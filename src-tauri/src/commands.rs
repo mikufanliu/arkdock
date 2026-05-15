@@ -12,11 +12,16 @@ fn model_dir(app: &AppHandle) -> PathBuf {
     if resource.exists() {
         return resource;
     }
-    // Dev mode: model files are in the project's web/model directory
-    let dev_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("web").join("model");
-    if dev_path.exists() {
-        return dev_path.canonicalize().unwrap_or(dev_path);
+
+    // Dev-only fallback: in release builds, never depend on the builder machine path.
+    #[cfg(debug_assertions)]
+    {
+        let dev_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join("web").join("model");
+        if dev_path.exists() {
+            return dev_path.canonicalize().unwrap_or(dev_path);
+        }
     }
+
     resource
 }
 
@@ -147,13 +152,36 @@ pub fn load_chat_history(app: AppHandle, char_id: String) -> Vec<ChatMessage> {
 #[tauri::command]
 pub fn play_audio(app: AppHandle, char_id: String, file: String, lang: Option<String>) -> Result<(), String> {
     let voice_lang = lang.unwrap_or_else(|| "cn".to_string());
-    let path = model_dir(&app).join(&char_id).join("voice").join(&voice_lang).join(&file);
-    // Fallback to flat voice/ directory for legacy layout
-    let path = if path.exists() { path } else {
-        model_dir(&app).join(&char_id).join("voice").join(&file)
+    let voice_root = model_dir(&app).join(&char_id).join("voice");
+    let candidates = [
+        voice_root.join(&voice_lang).join(&file),
+        voice_root.join("cn").join(&file),
+        voice_root.join("jp").join(&file),
+        voice_root.join("dialect").join(&file),
+        // Legacy flat layout: voice/<file>
+        voice_root.join(&file),
+    ];
+    let path = candidates.into_iter().find(|p| p.exists());
+    let path = match path {
+        Some(p) => p,
+        None => return Err(format!("Audio file not found for {char_id}/{file} (lang={voice_lang})")),
     };
+
     if !path.exists() {
         return Err(format!("Audio file not found: {}", path.display()));
+    }
+
+    // Fast-fail so frontend can receive a real error instead of silent no-op.
+    if let Err(e) = rodio::OutputStream::try_default() {
+        return Err(format!("Audio output unavailable: {}", e));
+    }
+
+    // Validate file readability + decoder support before spawning playback thread.
+    let preflight_file = fs::File::open(&path)
+        .map_err(|e| format!("Audio open failed ({}): {}", path.display(), e))?;
+    let preflight_reader = std::io::BufReader::new(preflight_file);
+    if let Err(e) = rodio::Decoder::new(preflight_reader) {
+        return Err(format!("Audio decode failed ({}): {}", path.display(), e));
     }
 
     let gen = AUDIO_GENERATION.fetch_add(1, Ordering::SeqCst) + 1;
@@ -161,26 +189,40 @@ pub fn play_audio(app: AppHandle, char_id: String, file: String, lang: Option<St
     std::thread::spawn(move || {
         let file = match fs::File::open(&path) {
             Ok(f) => f,
-            Err(_) => return,
+            Err(e) => {
+                eprintln!("play_audio open failed ({}): {}", path.display(), e);
+                return;
+            }
         };
         let reader = std::io::BufReader::new(file);
         let (_stream, handle) = match rodio::OutputStream::try_default() {
             Ok(s) => s,
-            Err(_) => return,
+            Err(e) => {
+                eprintln!("play_audio output stream init failed: {}", e);
+                return;
+            }
         };
         let sink = match rodio::Sink::try_new(&handle) {
             Ok(s) => s,
-            Err(_) => return,
-        };
-        if let Ok(source) = rodio::Decoder::new(reader) {
-            sink.append(source);
-            while !sink.empty() {
-                if AUDIO_GENERATION.load(Ordering::SeqCst) != gen {
-                    sink.stop();
-                    return;
-                }
-                std::thread::sleep(std::time::Duration::from_millis(50));
+            Err(e) => {
+                eprintln!("play_audio sink init failed: {}", e);
+                return;
             }
+        };
+        let source = match rodio::Decoder::new(reader) {
+            Ok(s) => s,
+            Err(e) => {
+                eprintln!("play_audio decode failed ({}): {}", path.display(), e);
+                return;
+            }
+        };
+        sink.append(source);
+        while !sink.empty() {
+            if AUDIO_GENERATION.load(Ordering::SeqCst) != gen {
+                sink.stop();
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
         }
     });
     Ok(())
@@ -213,7 +255,7 @@ struct ModeData {
 }
 
 #[tauri::command]
-pub fn show_context_menu(app: AppHandle, motions: Vec<String>) -> Result<(), String> {
+pub fn show_context_menu(app: AppHandle, motions: Vec<String>, x: Option<f64>, y: Option<f64>) -> Result<(), String> {
     let window = app.get_webview_window("main").ok_or("no window")?;
 
     // Build model switching submenu
@@ -263,7 +305,22 @@ pub fn show_context_menu(app: AppHandle, motions: Vec<String>) -> Result<(), Str
         &quit,
     ]).map_err(|e| e.to_string())?;
 
-    window.popup_menu(&menu).map_err(|e| e.to_string())?;
+    if let (Some(px), Some(py)) = (x, y) {
+        let scale = window.scale_factor().unwrap_or(1.0);
+        let size = window.inner_size().ok();
+        let mut phys_x = px * scale;
+        let mut phys_y = py * scale;
+        if let Some(size) = size {
+            let max_x = size.width.saturating_sub(1) as f64;
+            let max_y = size.height.saturating_sub(1) as f64;
+            phys_x = phys_x.clamp(0.0, max_x);
+            phys_y = phys_y.clamp(0.0, max_y);
+        }
+        let pos = tauri::PhysicalPosition::new(phys_x, phys_y);
+        window.popup_menu_at(&menu, pos).map_err(|e| e.to_string())?;
+    } else {
+        window.popup_menu(&menu).map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 

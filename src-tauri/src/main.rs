@@ -24,6 +24,12 @@ fn main() {
             if let Some(window) = app.get_webview_window("main") {
                 window.set_ignore_cursor_events(false).ok();
                 window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+                #[cfg(target_os = "windows")]
+                {
+                    // Transparent undecorated windows on Windows can show a halo/white border
+                    // due to DWM shadow/composition. Disable native shadow explicitly.
+                    window.set_shadow(false).ok();
+                }
 
                 // Restore saved window position
                 let path = window_prefs_path(app.handle());
