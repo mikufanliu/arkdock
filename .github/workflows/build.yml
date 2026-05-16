@@ -41,14 +41,22 @@ jobs:
         run: |
           DMG=$(find src-tauri/target/release/bundle/dmg -name "*.dmg" | head -1)
           MOUNT=$(mktemp -d)
+          PATCHED_DMG="${DMG%.dmg}-patched.dmg"
           hdiutil attach "$DMG" -mountpoint "$MOUNT" -nobrowse
           TEMP=$(mktemp -d)
           cp -R "$MOUNT"/* "$TEMP"/
           hdiutil detach "$MOUNT"
           cp scripts/fix-gatekeeper.command "$TEMP/修复安全提示.command"
           chmod +x "$TEMP/修复安全提示.command"
-          rm "$DMG"
-          hdiutil create -volname "ArkDock" -srcfolder "$TEMP" -ov -format UDZO "$DMG"
+          for i in 1 2 3; do
+            if hdiutil create -volname "ArkDock" -srcfolder "$TEMP" -ov -format UDZO "$PATCHED_DMG"; then
+              break
+            fi
+            echo "hdiutil create failed, retry $i/3"
+            sleep 5
+          done
+          test -f "$PATCHED_DMG"
+          mv -f "$PATCHED_DMG" "$DMG"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -91,14 +99,22 @@ jobs:
         run: |
           DMG=$(find src-tauri/target/x86_64-apple-darwin/release/bundle/dmg -name "*.dmg" | head -1)
           MOUNT=$(mktemp -d)
+          PATCHED_DMG="${DMG%.dmg}-patched.dmg"
           hdiutil attach "$DMG" -mountpoint "$MOUNT" -nobrowse
           TEMP=$(mktemp -d)
           cp -R "$MOUNT"/* "$TEMP"/
           hdiutil detach "$MOUNT"
           cp scripts/fix-gatekeeper.command "$TEMP/修复安全提示.command"
           chmod +x "$TEMP/修复安全提示.command"
-          rm "$DMG"
-          hdiutil create -volname "ArkDock" -srcfolder "$TEMP" -ov -format UDZO "$DMG"
+          for i in 1 2 3; do
+            if hdiutil create -volname "ArkDock" -srcfolder "$TEMP" -ov -format UDZO "$PATCHED_DMG"; then
+              break
+            fi
+            echo "hdiutil create failed, retry $i/3"
+            sleep 5
+          done
+          test -f "$PATCHED_DMG"
+          mv -f "$PATCHED_DMG" "$DMG"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
