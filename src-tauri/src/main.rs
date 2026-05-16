@@ -18,10 +18,18 @@ fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
         .setup(|app| {
-            tray::create_tray(app.handle())?;
+            if let Err(err) = tray::create_tray(app.handle()) {
+                eprintln!("failed to create tray: {err}");
+            }
             if let Some(window) = app.get_webview_window("main") {
                 window.set_ignore_cursor_events(false).ok();
                 window.set_background_color(Some(Color(0, 0, 0, 0))).ok();
+                #[cfg(target_os = "windows")]
+                {
+                    // Transparent undecorated windows on Windows can show a halo/white border
+                    // due to DWM shadow/composition. Disable native shadow explicitly.
+                    window.set_shadow(false).ok();
+                }
 
                 // Restore saved window position (with screen bounds check)
                 let path = window_prefs_path(app.handle());

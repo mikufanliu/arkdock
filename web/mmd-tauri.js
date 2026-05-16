@@ -41,12 +41,13 @@ function initMMD() {
     // Drag and interaction events
     let dragStartX = 0, dragStartY = 0, isDragging = false;
     canvas.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return; // only left button starts tap/drag flow
         dragStartX = e.clientX;
         dragStartY = e.clientY;
         isDragging = false;
     });
     canvas.addEventListener('mousemove', (e) => {
-        if (e.buttons === 1) {
+        if ((e.buttons & 1) === 1) {
             const dx = e.clientX - dragStartX;
             const dy = e.clientY - dragStartY;
             if (!isDragging && (dx * dx + dy * dy) > 25) {
@@ -55,7 +56,8 @@ function initMMD() {
             }
         }
     });
-    canvas.addEventListener('mouseup', () => {
+    canvas.addEventListener('mouseup', (e) => {
+        if (e.button !== 0) return; // ignore right/middle release
         if (!isDragging && window.notifySwift) window.notifySwift('tap', {});
         isDragging = false;
     });

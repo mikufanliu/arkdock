@@ -17,6 +17,7 @@ const state = {
     userScale: 1.0,
     modeScales: {},
     globalPrefs: {},
+    switchToken: 0,
 };
 
 async function initState() {
@@ -36,11 +37,15 @@ async function initState() {
 }
 
 async function switchCharacter(charId) {
+    const token = ++state.switchToken;
+
     state.currentChar = charId;
     state.chatHistory = await invoke("load_chat_history", { charId });
+    if (token !== state.switchToken) return;
 
     // Load per-character preferences (modeScales, voiceLang)
     const prefs = await invoke("load_char_prefs", { charId });
+    if (token !== state.switchToken) return;
     if (prefs) {
         state.modeScales = prefs.modeScales || {};
         if (prefs.voiceLang) state.voiceLang = prefs.voiceLang;
@@ -49,9 +54,11 @@ async function switchCharacter(charId) {
     }
 
     const personaJson = await invoke("read_json_file", { charId, filename: "persona.json" });
+    if (token !== state.switchToken) return;
     state.persona = personaJson ? JSON.parse(personaJson) : null;
 
     const skillsJson = await invoke("read_json_file", { charId, filename: "skills.json" });
+    if (token !== state.switchToken) return;
     if (skillsJson) {
         const parsed = JSON.parse(skillsJson);
         state.skills = Array.isArray(parsed) ? parsed : (parsed.skills || []);
@@ -60,6 +67,7 @@ async function switchCharacter(charId) {
     }
 
     const voiceJson = await invoke("read_json_file", { charId, filename: "voice_lines.json" });
+    if (token !== state.switchToken) return;
     if (voiceJson) {
         const parsed = JSON.parse(voiceJson);
         state.voiceLines = Array.isArray(parsed) ? parsed : (parsed.voiceLines || []);
@@ -68,6 +76,7 @@ async function switchCharacter(charId) {
     }
 
     const manifest = await invoke("read_json_file", { charId, filename: "manifest.json" });
+    if (token !== state.switchToken) return;
     const manifestObj = manifest ? JSON.parse(manifest) : {};
 
     // Normalize: sort skins (默认 first) and modes (front → build → back)

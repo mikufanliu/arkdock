@@ -24,9 +24,18 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2"
 
+      - name: Packaging smoke (config + source)
+        run: python3 scripts/check_packaging_smoke.py --check config-source
+
       - name: Build Tauri app
         run: cargo tauri build
         working-directory: .
+
+      - name: Packaging smoke (macOS app resources)
+        run: |
+          APP=$(find src-tauri/target/release/bundle/macos -maxdepth 1 -name "*.app" | head -1)
+          test -n "$APP"
+          python3 scripts/check_packaging_smoke.py --check mac-app --app "$APP"
 
       - name: Inject fix script into DMG
         run: |
@@ -65,9 +74,18 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2"
 
+      - name: Packaging smoke (config + source)
+        run: python3 scripts/check_packaging_smoke.py --check config-source
+
       - name: Build Tauri app (x86_64)
         run: cargo tauri build --target x86_64-apple-darwin
         working-directory: .
+
+      - name: Packaging smoke (macOS app resources)
+        run: |
+          APP=$(find src-tauri/target/x86_64-apple-darwin/release/bundle/macos -maxdepth 1 -name "*.app" | head -1)
+          test -n "$APP"
+          python3 scripts/check_packaging_smoke.py --check mac-app --app "$APP"
 
       - name: Inject fix script into DMG
         run: |
@@ -104,9 +122,21 @@ jobs:
       - name: Install Tauri CLI
         run: cargo install tauri-cli --version "^2"
 
+      - name: Packaging smoke (config + source)
+        run: python scripts/check_packaging_smoke.py --check config-source
+
       - name: Build Tauri app
         run: cargo tauri build
         working-directory: .
+
+      - name: Packaging smoke (Windows installer resources)
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem "src-tauri/target/release/bundle/nsis/*.exe" | Select-Object -First 1
+          $msi = Get-ChildItem "src-tauri/target/release/bundle/msi/*.msi" | Select-Object -First 1
+          if (-not $exe) { throw "Missing NSIS artifact" }
+          if (-not $msi) { throw "Missing MSI artifact" }
+          python scripts/check_packaging_smoke.py --check windows-artifact --artifact $exe.FullName --artifact $msi.FullName
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
