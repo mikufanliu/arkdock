@@ -610,20 +610,36 @@ async function initApp() {
     listen("switch-model", async (event) => {
         const modelId = event.payload;
         if (!modelId) return;
-        const charId = modelId.split("/")[0];
+        const parts = modelId.split("/");
+        const charId = parts[0];
+        const rawModePath = parts.slice(1).join("/");
+        const modePath = rawModePath && rawModePath !== "." ? rawModePath : null;
+        if (!charId) return;
+
+        const loadModelByType = (fullModelId) => {
+            if (state.manifest && state.manifest.type === "live2d") {
+                window.switchLive2DModel(fullModelId);
+            } else if (state.manifest && state.manifest.type === "mmd") {
+                window.switchMMDModel(fullModelId);
+            } else {
+                window.switchSpineModel(fullModelId);
+            }
+        };
+
         if (charId !== state.currentChar) {
             await switchCharacter(charId);
             renderSkillBar();
             startIdleChat();
-        } else {
-            if (state.manifest && state.manifest.type === "live2d") {
-                window.switchLive2DModel(modelId);
-            } else {
-                window.switchSpineModel(modelId);
-            }
         }
-        if (state.manifest && state.manifest.skins) {
-            const modePath = modelId.split("/").slice(1).join("/");
+
+        // `model:char/.` means "character default mode".
+        // switchCharacter already handled loading default mode above.
+        if (modePath) {
+            loadModelByType(`${charId}/${modePath}`);
+        }
+
+        if (modePath && state.manifest && state.manifest.skins) {
+            let found = false;
             for (let si = 0; si < state.manifest.skins.length; si++) {
                 const modes = state.manifest.skins[si].modes || [];
                 for (let mi = 0; mi < modes.length; mi++) {
@@ -640,9 +656,11 @@ async function initApp() {
                                 if (window.setUserScale) window.setUserScale(state.userScale);
                             }
                         }, 300);
+                        found = true;
                         break;
                     }
                 }
+                if (found) break;
             }
         }
     });
