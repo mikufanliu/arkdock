@@ -99,7 +99,12 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
                     app.exit(0);
                 }
                 _ => {
-                    // Model switch handled by global on_menu_event in lib.rs
+                    // Handle model switching directly for tray menu events.
+                    // Some platforms/runtimes don't route tray menu events
+                    // through the global on_menu_event callback reliably.
+                    if let Some(model_id) = id.strip_prefix("model:") {
+                        app.emit("switch-model", model_id.to_string()).ok();
+                    }
                 }
             }
         })
