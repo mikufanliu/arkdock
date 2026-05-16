@@ -14,6 +14,7 @@ cp "$SCRIPT_DIR/src/style.css" "$DIST/"
 cp "$SCRIPT_DIR/src/app.js" "$DIST/"
 cp "$SCRIPT_DIR/src/state.js" "$DIST/"
 cp "$SCRIPT_DIR/src/chat.js" "$DIST/"
+cp "$SCRIPT_DIR/src/time.js" "$DIST/"
 
 # Copy web assets
 mkdir -p "$DIST/web"

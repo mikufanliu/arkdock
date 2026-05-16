@@ -457,7 +457,7 @@ function stopIdleChat() {
 function scheduleIdleChat() {
     const delay = 30000 + Math.random() * 60000;
     idleChatTimer = setTimeout(() => {
-        const text = getIdleLine();
+        const text = (typeof getIdleLine === "function") ? getIdleLine() : scriptedReply();
         if (text && text !== "……") showBubble(text, 5000);
         scheduleIdleChat();
     }, delay);
@@ -593,12 +593,16 @@ async function initApp() {
     renderSkillBar();
     startIdleChat();
 
-    const greeting = getLaunchGreeting();
+    const greeting = (typeof getLaunchGreeting === "function")
+        ? getLaunchGreeting()
+        : (state.persona && state.persona.greeting ? state.persona.greeting : null);
     if (greeting) {
         showBubble(greeting, 5000);
     }
 
-    startHeartbeat();
+    if (typeof startHeartbeat === "function") {
+        startHeartbeat();
+    }
 
     // Listen for tray/context menu events
     const { listen } = window.__TAURI__.event;
