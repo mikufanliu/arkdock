@@ -5,6 +5,7 @@ let idleAnim = null;
 let idleTimer = null;
 let displayScale = 1.0;
 let userScale = 1.0;
+let spineLoadToken = 0;
 const MODEL_BASE = window.SPINE_MODEL_BASE || "model/";
 
 async function initSpine() {
@@ -66,6 +67,8 @@ async function initSpine() {
 }
 
 window.destroySpineApp = function() {
+    // Invalidate any in-flight async load so stale callbacks cannot re-attach models.
+    spineLoadToken += 1;
     stopIdleTimer();
     if (spineObj) {
         app.stage.removeChild(spineObj);
@@ -113,6 +116,7 @@ function fitSpine() {
 // === 模型加载 ===
 
 window.switchSpineModel = async function(modelId) {
+    const loadToken = ++spineLoadToken;
     const basePath = MODEL_BASE + modelId + "/";
     const charId = modelId.split("/")[0];
     const modePath = modelId.split("/").slice(1).join("/");
@@ -140,18 +144,22 @@ window.switchSpineModel = async function(modelId) {
             console.error("找不到 .skel 文件:", modelId);
             return;
         }
+        if (loadToken !== spineLoadToken) return;
 
         const skelPath = basePath + skelName + ".skel";
         const atlasPath = basePath + skelName + ".atlas";
 
-        await loadSpineModel(skelName, skelPath, atlasPath);
+        await loadSpineModel(skelName, skelPath, atlasPath, loadToken);
     } catch (e) {
         console.error("Spine 模型加载失败:", e);
-        notifySwift("error", { message: e.message });
+        if (loadToken === spineLoadToken) {
+            notifySwift("error", { message: e.message });
+        }
     }
 };
 
-async function loadSpineModel(name, skelPath, atlasPath) {
+async function loadSpineModel(name, skelPath, atlasPath, loadToken) {
+    if (loadToken !== spineLoadToken) return;
     stopIdleTimer();
 
     // Destroy live2d and mmd if active
@@ -161,6 +169,7 @@ async function loadSpineModel(name, skelPath, atlasPath) {
     if (mmdCanvas) mmdCanvas.style.display = 'none';
     const spineCanvas = document.getElementById('spine-canvas');
     if (spineCanvas) spineCanvas.style.display = 'block';
+    if (loadToken !== spineLoadToken) return;
 
     // Clear old spine object and stage
     if (spineObj) {
@@ -181,6 +190,11 @@ async function loadSpineModel(name, skelPath, atlasPath) {
 
     return new Promise((resolve, reject) => {
         loader.load((loader, resources) => {
+            if (loadToken !== spineLoadToken) {
+                loader.destroy();
+                resolve();
+                return;
+            }
             const res = resources[loaderId];
             if (!res || !res.spineData) {
                 reject(new Error("Spine 数据加载失败"));
@@ -220,14 +234,23 @@ async function loadSpineModel(name, skelPath, atlasPath) {
             notifySwift("ready", { expressions: [], motionGroups });
 
             // Refit after a frame to ensure correct dimensions
-            requestAnimationFrame(() => fitSpine());
+            requestAnimationFrame(() => {
+                if (loadToken === spineLoadToken) fitSpine();
+            });
 
             console.log("Spine 加载完成, idle:", idleAnim, ", start:", startAnim || "无");
             loader.destroy();
             resolve();
         });
 
-        loader.onError.add((err) => { loader.destroy(); reject(err); });
+        loader.onError.add((err) => {
+            loader.destroy();
+            if (loadToken !== spineLoadToken) {
+                resolve();
+                return;
+            }
+            reject(err);
+        });
     });
 }
 

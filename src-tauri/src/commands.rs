@@ -365,9 +365,9 @@ fn build_context_model_submenu(app: &AppHandle) -> Result<tauri::menu::Submenu<t
                 .and_then(|m| m.path.as_deref())
                 .unwrap_or(".");
             let model_id = if mode_path == "." {
-                format!("model:{}", char_id)
+                format!("ctx_model:{}", char_id)
             } else {
-                format!("model:{}/{}", char_id, mode_path)
+                format!("ctx_model:{}/{}", char_id, mode_path)
             };
             let item = MenuItem::with_id(app, &model_id, char_name, true, None::<&str>)?;
             builder = builder.item(&item);
@@ -376,7 +376,7 @@ fn build_context_model_submenu(app: &AppHandle) -> Result<tauri::menu::Submenu<t
             for mode in single_skin_modes.unwrap_or(&vec![]) {
                 let mode_path = mode.path.as_deref().unwrap_or(".");
                 let mode_name = mode.name.as_deref().unwrap_or(mode_path);
-                let model_id = format!("model:{}/{}", char_id, mode_path);
+                let model_id = format!("ctx_model:{}/{}", char_id, mode_path);
                 let item = MenuItem::with_id(app, &model_id, mode_name, true, None::<&str>)?;
                 sub = sub.item(&item);
             }
@@ -388,7 +388,7 @@ fn build_context_model_submenu(app: &AppHandle) -> Result<tauri::menu::Submenu<t
                 let modes = skin.modes.as_ref().map(|m| m.as_slice()).unwrap_or(&[]);
                 if modes.len() <= 1 {
                     let mode_path = modes.first().and_then(|m| m.path.as_deref()).unwrap_or(".");
-                    let model_id = format!("model:{}/{}", char_id, mode_path);
+                    let model_id = format!("ctx_model:{}/{}", char_id, mode_path);
                     let item = MenuItem::with_id(app, &model_id, skin_name, true, None::<&str>)?;
                     char_sub = char_sub.item(&item);
                 } else {
@@ -396,7 +396,7 @@ fn build_context_model_submenu(app: &AppHandle) -> Result<tauri::menu::Submenu<t
                     for mode in modes {
                         let mode_path = mode.path.as_deref().unwrap_or(".");
                         let mode_name = mode.name.as_deref().unwrap_or(mode_path);
-                        let model_id = format!("model:{}/{}", char_id, mode_path);
+                        let model_id = format!("ctx_model:{}/{}", char_id, mode_path);
                         let item = MenuItem::with_id(app, &model_id, mode_name, true, None::<&str>)?;
                         skin_sub = skin_sub.item(&item);
                     }

@@ -70,7 +70,7 @@ fn main() {
         })
         .on_menu_event(|app, event| {
             let id = event.id().as_ref().to_string();
-            if let Some(model_id) = id.strip_prefix("model:") {
+            if let Some(model_id) = id.strip_prefix("ctx_model:") {
                 app.emit("switch-model", model_id.to_string()).ok();
             } else if let Some(motion) = id.strip_prefix("ctx_motion:") {
                 app.emit("play-motion", motion.to_string()).ok();

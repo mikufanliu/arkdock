@@ -36,7 +36,7 @@ async function initState() {
     }
 }
 
-async function switchCharacter(charId) {
+async function switchCharacter(charId, preferredModePath = null) {
     const token = ++state.switchToken;
 
     state.currentChar = charId;
@@ -104,17 +104,40 @@ async function switchCharacter(charId) {
     state.currentSkinIndex = 0;
     state.currentModeIndex = 0;
 
-    // Default: first skin's first mode (after sorting, should be 默认 skin + front mode)
-    let defaultMode = "default_front";
-    if (manifestObj.skins && manifestObj.skins.length > 0) {
-        const modes = manifestObj.skins[0].modes || [];
-        defaultMode = (modes[0])?.path || defaultMode;
-    } else if (manifestObj.defaultMode) {
-        defaultMode = manifestObj.defaultMode;
+    // Resolve target mode:
+    // 1) explicit preferred mode from switch-model payload
+    // 2) character default mode
+    let resolvedMode = null;
+    if (preferredModePath && manifestObj.skins) {
+        let found = false;
+        for (let si = 0; si < manifestObj.skins.length; si++) {
+            const modes = manifestObj.skins[si].modes || [];
+            for (let mi = 0; mi < modes.length; mi++) {
+                if (modes[mi].path === preferredModePath) {
+                    state.currentSkinIndex = si;
+                    state.currentModeIndex = mi;
+                    resolvedMode = preferredModePath;
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+    }
+
+    if (!resolvedMode) {
+        let defaultMode = "default_front";
+        if (manifestObj.skins && manifestObj.skins.length > 0) {
+            const modes = manifestObj.skins[0].modes || [];
+            defaultMode = (modes[0])?.path || defaultMode;
+        } else if (manifestObj.defaultMode) {
+            defaultMode = manifestObj.defaultMode;
+        }
+        resolvedMode = defaultMode;
     }
 
     // Set scale BEFORE loading model so fitSpine uses correct value immediately
-    const modePath = defaultMode;
+    const modePath = resolvedMode;
     state.userScale = getScaleForMode(modePath);
     if (window.setUserScale) window.setUserScale(state.userScale);
 
