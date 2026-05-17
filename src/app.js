@@ -611,6 +611,7 @@ async function initApp() {
         const rawModePath = parts.slice(1).join("/");
         const modePath = rawModePath && rawModePath !== "." ? rawModePath : null;
         if (!charId) return;
+        const changedChar = charId !== state.currentChar;
 
         const loadModelByType = (fullModelId) => {
             if (state.manifest && state.manifest.type === "live2d") {
@@ -622,19 +623,17 @@ async function initApp() {
             }
         };
 
-        if (charId !== state.currentChar) {
-            await switchCharacter(charId);
+        if (changedChar) {
+            await switchCharacter(charId, modePath);
             renderSkillBar();
             startIdleChat();
-        }
-
-        // `model:char/.` means "character default mode".
-        // switchCharacter already handled loading default mode above.
-        if (modePath) {
+        } else if (modePath) {
             loadModelByType(`${charId}/${modePath}`);
         }
 
-        if (modePath && state.manifest && state.manifest.skins) {
+        // `model:char/.` means "character default mode".
+        // For changed characters, switchCharacter already loaded the resolved mode.
+        if (!changedChar && modePath && state.manifest && state.manifest.skins) {
             let found = false;
             for (let si = 0; si < state.manifest.skins.length; si++) {
                 const modes = state.manifest.skins[si].modes || [];
