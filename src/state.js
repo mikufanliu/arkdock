@@ -142,11 +142,11 @@ async function switchCharacter(charId, preferredModePath = null) {
     if (window.setUserScale) window.setUserScale(state.userScale);
 
     if (manifestObj.type === "spine") {
-        window.switchSpineModel(charId + "/" + defaultMode);
+        window.switchSpineModel(charId + "/" + resolvedMode);
     } else if (manifestObj.type === "live2d") {
-        window.switchLive2DModel(charId + "/" + defaultMode);
+        window.switchLive2DModel(charId + "/" + resolvedMode);
     } else if (manifestObj.type === "mmd") {
-        window.switchMMDModel(charId + "/" + defaultMode);
+        window.switchMMDModel(charId + "/" + resolvedMode);
     }
 
     saveGlobalPrefs();
